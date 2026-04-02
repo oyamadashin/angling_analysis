@@ -1,0 +1,12 @@
+---
+title: "angling_GT"
+output: html_document
+date: "2026-04-02"
+---
+
+# source()
+
+```{r}
+source("angling_prepartion.R")
+```
+

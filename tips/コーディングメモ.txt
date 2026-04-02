@@ -1,0 +1,158 @@
+# memo
+
+- 9月27日はプレ調査のデータ。本調査データとWTPの選択肢が一部異なる。
+- Formsを作って入力する。
+  - 9月27日分についての措置はv15_3_license_wtp参照
+  - 以下、Formsの編集用URL
+    - https://forms.office.com/Pages/DesignPageV2.aspx?prevorigin=shell&origin=NeoPortalPage&subpage=design&id=LkP55PRkh0KJHSRfz3SiAkgre_1TBbJFjBLwN1Z2LwZUNkZOQ1BTNk5DRTUxQVE4WFNKRUNYN0ZWVi4u
+  - Forms入力用URL
+    - https://forms.office.com/r/ChxnMuV0yf
+- id 65 は完全に白紙。未使用のものが混入していたと思われる。csvファイルからは行ごと削除（したがって65は欠番）
+
+
+
+# 変数名リスト
+## id
+
+- 質問紙の整理番号。質問紙の右上に振ってある。
+- 調査日順に振っていないので注意。
+
+## date
+
+- 調査実施日。全6パターン。
+  - 9月27日_プレ
+    - プレ調査
+  - 10月4日
+  - 10月5日
+  - 10月17日
+  - 10月19日
+  - 10月24日
+
+## survey_area
+
+- 全3パターン
+  - モヨロ
+  - 鱒浦
+  - 北浜
+
+## v1_sex
+
+- 性別
+- 男性、女性の2カテゴリー
+
+## v2_gen
+
+- 世代
+- 10代～80代以上の8カテゴリー
+
+## v3_residence
+
+- 居住地
+- 網走市内、道内、道外の3カテゴリー
+
+## v4_fishing_experience_years
+
+- 5年未満～20年以上の4カテゴリー
+
+## v5_fishing_days_this_season
+- 5日未満～50日以上の5カテゴリー
+
+## v6_fishing_days_last_season
+
+- 5日未満～50日以上と「昨シーズンは来ていない」の6カテゴリー
+
+## v7_prohibited_actions
+
+- 複数回答。次のように6つのダミー変数をつくる。
+
+### v7_no_spot_reservation
+### v7_no_tent
+### v7_no_dune_destruction
+
+- 砂丘の破壊禁止
+
+### v7_no_entry_restricted_area
+### v7_no_littering
+
+- ゴミ、残滓の投棄禁止
+
+### v7_no_fishing_in_restricted_area
+
+## v8_discouraged_actions
+- 複数回答。次のように8つのダミー変数をつくる。
+
+### v8_max_rods_three
+### v8_max_catch_three
+### v8_discourage_release
+### v8_discourage_miniboat_use
+### v8_discourage_illegal_parking
+### v8_discourage_camping
+### v8_discourage_bonfire
+### v8_use_designated_toilets
+
+## v9_information_source
+- 複数回答。次のように11のダミー変数をつくる。
+
+### v9_checked_last_year_only
+### v9_never_checked
+### v9_info_tv_newspaper
+### v9_info_fishing_magazine
+### v9_info_abashiri_city_website
+### v9_info_abashiri_city_sns
+### v9_info_beach_signboard
+### v9_info_friends_word_of_mouth
+### v9_info_personal_sns
+### v9_info_web_blog
+### v9_other
+
+## v10_formulation_procedure
+## v11_improvement_proposal
+### v11_improve_transparency_process
+### v11_improve_opportunity_for_input
+### v11_reflect_fishers_opinions
+### v11_no_need_for_rule_making
+### v11_other
+## v12_fisher_burden
+## v13_user_burden
+## v14_license_system
+## v15_1_purchase_intent
+## v15_2_license_type
+
+## v15_3_license_wtp
+
+- プレ調査では「5,000円以下（　　円）」のところが「5,000円」になっている。
+  - formsでは「5000円以下（　　円）」と「5000円」の両方の選択肢を入れよう。あと、区切りのカンマはあとで処理が面倒だから消す。
+
+- 5,000円以下（　　　　　円）と150,000円以上（　　　　　円）については、「その他」質問を2つ以上つくることができないので、別質問で記入してもらうことにする。
+
+## v16_desired_fishing_days
+
+## v17_1_most_important_rule
+- 単一回答だが複数〇を付ける人が多いため、複数回答扱いにする。v17_2も同様の措置。
+
+### v17_1_max_rods_three
+### v17_1_max_catch_three
+### v17_1_no_spot_reservation
+### v17_1_all_equally_important
+### v17_1_dont_know
+
+## v17_2_least_important_rule
+
+### v17_2_max_rods_three
+### v17_2_max_catch_three
+### v17_2_no_spot_reservation
+### v17_2_all_equally_important
+### v17_2_dont_know
+
+## v17_3_reason_not_important
+- 複数回答。次のように7つのダミー変数をつくる。
+
+### v17_3_reason_reduce_enjoyment
+### v17_3_reason_insufficient_discussion
+### v17_3_reason_ambiguous_rule
+### v17_3_reason_difficult_to_follow
+### v17_3_reason_unlikely_to_be_followed
+### v17_3_reason_has_loopholes
+### v17_3_other
+
+## v18_household_income
