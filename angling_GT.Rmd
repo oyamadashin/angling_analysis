@@ -4,9 +4,154 @@ output: html_document
 date: "2026-04-02"
 ---
 
-# source()
+# 準備
 
-```{r}
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+```{r message=FALSE}
 source("angling_prepartion.R")
 ```
+
+
+
+# 調査日(date)
+
+```{r date}
+df |> count(date) |> 
+  mutate(prop = round(n / sum(n), 2))
+```
+
+# 調査地(survey_area)
+
+```{r survey_area}
+df |> count(survey_area) |> 
+  mutate(prop = round(n / sum(n), 2))
+```
+鱒浦でのサンプルが半分以上。モヨロは10％しかない。
+
+```{r survey_area-date}
+df |> count(date, survey_area) |> 
+    mutate(prop = round(n / sum(n), 2))
+```
+
+調査日×調査地の度数分布。
+
+
+# 性別(v1_sex)
+
+```{r v1_sex}
+df |> count(v1_sex) |> 
+  mutate(prop = round(n / sum(n), 2))
+```
+ほとんど男ばかり。
+
+```{r v1_sex-survey_area}
+df |> count(v1_sex, survey_area) |> 
+  mutate(prop = round(n / sum(n), 2))
+```
+
+女性がどこに多いかというのは今回のデータではよくわからない。
+
+
+# 世代(v2_gen)
+
+```{r v2_gen}
+df |> count(v2_gen) |> 
+  mutate(prop = round(n / sum(n), 2))
+```
+
+50代と70代が多い。
+
+
+```{r v2_gen-survey_area}
+df |> count(survey_area, v2_gen) |> 
+  group_by(survey_area) |> 
+  mutate(prop = round(n / sum(n), 2)) |> 
+  ggplot(aes(x = prop, y = v2_gen)) +
+  geom_col() +
+  facet_wrap(~survey_area)
+```
+
+各調査地のサンプルの偏りを考慮すると、調査地ごとで分布に特に違いがあるようには見えない。
+
+
+# 居住地(v3_residence)
+
+```{r v3_residence}
+df |> count(v3_residence) |> 
+  mutate(prop = round(n / sum(n), 2))
+```
+道外はゼロ。また、市外から来ている人が9割近い。
+
+
+# 釣り歴(v4_fishing_experience_years)
+
+```{r v4_fishing_experience_years}
+df |> count(v4_fishing_experience_years) |> 
+  mutate(prop = round(n / sum(n), 2))
+```
+
+20年以上が半数以上。
+
+
+```{r v4_fishing_experience_years-survey_area}
+df |> count(survey_area, v4_fishing_experience_years) |> 
+  group_by(survey_area) |> 
+  mutate(prop = round(n / sum(n), 2)) |> 
+  ggplot(aes(x = prop, y = v4_fishing_experience_years)) +
+  geom_col() +
+  facet_wrap(~survey_area)
+```
+
+調査地によって釣り歴が異なるという感じではない。
+
+
+# 今シーズン釣り日数(v5_fishing_days_this_season)
+
+```{r v5_fishing_days_this_season}
+df |> count(v5_fishing_days_this_season) |> 
+  mutate(prop = round(n / sum(n), 2))
+```
+
+50日以上はゼロ。あくまで「今シーズン」だからかな。
+
+
+```{r v5_fishing_days_this_season-date}
+df |> count(date, v5_fishing_days_this_season) |> 
+  group_by(date) |> 
+  mutate(prop = round(n / sum(n), 2)) |> 
+  ggplot(aes(x = prop, y = v5_fishing_days_this_season)) +
+  geom_col() +
+  facet_wrap(~date)
+```
+
+
+調査日が後になるほど5日未満が減るのでは…と思ったがそんな傾向はみられない。
+
+
+# 昨シーズン釣り日数(v6_fishing_days_last_season)
+
+```{r v6_fishing_days_last_season}
+df |> count(v6_fishing_days_last_season) |> 
+  mutate(prop = round(n / sum(n), 2))
+```
+
+昨シーズンでみても5日未満が最も多い。
+
+
+```{r v6_fishing_days_last_season-survey_area}
+df |> count(survey_area, v6_fishing_days_last_season) |> 
+  group_by(survey_area) |> 
+  mutate(prop = round(n / sum(n), 2)) |> 
+  ggplot(aes(x = prop, y = v6_fishing_days_last_season)) +
+  geom_col() +
+  facet_wrap(~survey_area)
+```
+
+モヨロは昨シーズン来ていない人、5日未満の人がやや多め。50日以上はゼロ。ビギナー向けの釣り場なのかもしれない（サンプル数が少ないのであまり積極的なことはいえないが）。
+
+
 

@@ -4,4 +4,27 @@ output: html_document
 date: "2026-04-02"
 ---
 
+# source()
+```{r}
+source("angling_prepartion.R")
+```
+
+
+
+# practice
+
+```{r}
+df$date <- factor(
+  df$date,
+  levels = c("9月27日_プレ", "10月4日", "10月5日", "10月17日", "10月19日", "10月24日"),
+  ordered = TRUE
+)
+
+
+```
+
+
+```{r}
+df |> count(v6_fishing_days_last_season)
+```
 
