@@ -6,15 +6,16 @@ date: "2026-04-02"
 
 # 準備
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
-```
-
 
 ```{r message=FALSE}
 source("angling_prepartion.R")
 ```
 
+# サンプル数
+
+```{r}
+df |> nrow()
+```
 
 
 # 調査日(date)
@@ -23,6 +24,9 @@ source("angling_prepartion.R")
 df |> count(date) |> 
   mutate(prop = round(n / sum(n), 2))
 ```
+
+
+
 
 # 調査地(survey_area)
 
@@ -86,6 +90,11 @@ df |> count(v3_residence) |>
 ```
 道外はゼロ。また、市外から来ている人が9割近い。
 
+```{r}
+df |> count(`「道内」の場合の市町村名`) |> arrange(desc(n))
+```
+
+今回は北見が多い
 
 # 釣り歴(v4_fishing_experience_years)
 
@@ -154,4 +163,334 @@ df |> count(survey_area, v6_fishing_days_last_season) |>
 モヨロは昨シーズン来ていない人、5日未満の人がやや多め。50日以上はゼロ。ビギナー向けの釣り場なのかもしれない（サンプル数が少ないのであまり積極的なことはいえないが）。
 
 
+# 釣りルール認知
+
+```{r}
+
+data.frame(
+  "場所取り" = df$v7_no_spot_reservation |> mean(na.rm = TRUE) |> round(2),
+  "テント" = df$v7_no_tent |> mean(na.rm = TRUE) |> round(2),
+  "砂丘の破壊" = df$v7_no_dune_destruction |> mean(na.rm = TRUE) |> round(2),
+  "指定区域立入" = df$v7_no_entry_restricted_area |> mean(na.rm = TRUE) |> round(2),
+  "ゴミ投棄" = df$v7_no_littering |> mean(na.rm = TRUE) |> round(2),
+  "指定区域採捕" = df$v7_no_fishing_in_restricted_area |> mean(na.rm = TRUE) |> round(2)
+)
+
+```
+
+テント、砂丘破壊は認知率が低い。それ以外はほぼ9割認知。
+
+```{r}
+data.frame(
+  "竿3本" = df$v8_max_rods_three |> mean(na.rm = TRUE) |> round(2),
+  "魚3尾" = df$v8_max_catch_three |> mean(na.rm = TRUE) |> round(2),
+  "リリース" = df$v8_discourage_release |> mean(na.rm = TRUE) |> round(2),
+  "ミニボート" = df$v8_discourage_miniboat_use |> mean(na.rm = TRUE) |> round(2),
+  "迷惑駐車" = df$v8_discourage_illegal_parking |> mean(na.rm = TRUE) |> round(2),
+  "キャンプ" = df$v8_discourage_camping |> mean(na.rm = TRUE) |> round(2),
+  "焚き火" = df$v8_discourage_bonfire |> mean(na.rm = TRUE) |> round(2),
+  "トイレ" = df$v8_use_designated_toilets |> mean(na.rm = TRUE) |> round(2)
+) |> 
+  pivot_longer(
+    cols = everything(),
+    names_to = "守る事項",
+    values_to = "認知率"
+  ) |> 
+  arrange(desc(認知率))
+```
+2024年度調査よりは全体的に認知率が向上している。
+
+
+# v10 策定手順認知と納得
+
+```{r}
+df |>
+  filter(!is.na(v10_formulation_procedure)) |> 
+  count(v10_formulation_procedure) |> 
+  mutate(
+    prop = round(n / sum(n), 2)
+  )
+```
+
+2024年度に比べ、知っていて納得している人が10%減り、知っていて納得していない人がやや増えている。
+
+
+# v11 手順改善はどうするべき？
+
+```{r}
+df2 <- df |> filter(v10_formulation_procedure == "知っているが、納得していない" | v10_formulation_procedure =="知っているが、納得していない" )
+
+
+data.frame(
+  "流れを公開" = df2$v11_improve_transparency_process |> mean(na.rm = TRUE) |> round(2),
+  "意見反映" = df2$v11_reflect_fishers_opinions |> mean(na.rm = TRUE) |> round(2),
+  "意見機会確保" = df2$v11_improve_opportunity_for_input |> mean(na.rm = TRUE) |> round(2),
+  "ルールいらない" = df2$v11_no_need_for_rule_making |> mean(na.rm = TRUE) |> round(2)
+) |> 
+  pivot_longer(
+    cols = everything(),
+    names_to = "改善方法",
+    values_to = "該当率"
+  ) |> arrange(desc(該当率))
+
+```
+改善方法の支持傾向は2024年度調査とほとんど変わらない。
+
+
+# v17_1 ルール（もっとも重要）
+
+```{r}
+data.frame(
+  "竿3本" = df$v17_1_max_rods_three |> mean(na.rm = TRUE) |> round(2),
+  "魚3尾" = df$v17_1_max_catch_three|> mean(na.rm = TRUE) |> round(2),
+  "場所取り" = df$v17_1_no_spot_reservation |> mean(na.rm = TRUE) |> round(2),
+  "どれも同じ" = df$v17_1_all_equally_important |> mean(na.rm = TRUE) |> round(2),
+  "わからない" = df$v17_1_dont_know |> mean(na.rm = TRUE) |> round(2)
+) |> 
+  pivot_longer(
+    cols = everything(),
+    names_to = "もっとも重要と思うルール",
+    values_to = "該当率"
+  ) |> 
+  arrange(desc(該当率))
+
+
+```
+やっぱり3尾ルールは人気がない。
+
+
+# v17_2 ルール（もっとも重要でない）
+
+```{r}
+data.frame(
+  "竿3本" = df$v17_2_max_rods_three |> mean(na.rm = TRUE) |> round(2),
+  "魚3尾" = df$v17_2_max_catch_three|> mean(na.rm = TRUE) |> round(2),
+  "場所取り" = df$v17_2_no_spot_reservation |> mean(na.rm = TRUE) |> round(2),
+  "どれも同じ" = df$v17_2_all_equally_important |> mean(na.rm = TRUE) |> round(2),
+  "わからない" = df$v17_2_dont_know |> mean(na.rm = TRUE) |> round(2)
+) |> 
+  pivot_longer(
+    cols = everything(),
+    names_to = "もっとも重要でないと思うルール",
+    values_to = "該当率"
+  ) |> 
+  arrange(desc(該当率))
+
+
+```
+
+やはり魚3尾ルールがもっとも人気なし。
+
+度数でも見てみた。
+
+```{r}
+data.frame(
+  "竿3本" = df$v17_2_max_rods_three |> sum(na.rm = TRUE) |> round(2),
+  "魚3尾" = df$v17_2_max_catch_three|> sum(na.rm = TRUE) |> round(2),
+  "場所取り" = df$v17_2_no_spot_reservation |> sum(na.rm = TRUE) |> round(2),
+  "どれも同じ" = df$v17_2_all_equally_important |> sum(na.rm = TRUE) |> round(2),
+  "わからない" = df$v17_2_dont_know |> sum(na.rm = TRUE) |> round(2)
+) |> 
+  pivot_longer(
+    cols = everything(),
+    names_to = "もっとも重要でないと思うルール",
+    values_to = "度数"
+  ) |> 
+  arrange(desc(度数)) |> 
+  ggplot(aes(x = reorder(もっとも重要でないと思うルール, 度数), y = 度数)) +
+  geom_col()
+
+
+```
+
+
+# v17_3　「もっとも重要でない」理由
+
+
+## 全体傾向(度数)
+
+```{r}
+data.frame(
+  "楽しみを奪う" = df$v17_3_reason_reduce_enjoyment |> sum(na.rm = TRUE) |> round(2),
+  "守るのが難しい" = df$v17_3_reason_difficult_to_follow |> sum(na.rm = TRUE) |> round(2),
+  "議論不十分" = df$v17_3_reason_insufficient_discussion |> sum(na.rm = TRUE) |> round(2),
+  "誰も守らない" = df$v17_3_reason_unlikely_to_be_followed |> sum(na.rm = TRUE) |> round(2),
+  "ルールが曖昧" = df$v17_3_reason_ambiguous_rule |> sum(na.rm = TRUE) |> round(2),
+  "ルールに抜け道" = df$v17_3_reason_has_loopholes |> sum(na.rm = TRUE) |> round(2)
+) |> 
+  pivot_longer(
+    cols = everything(),
+    names_to = "もっとも重要でない理由",
+    values_to = "度数"
+  ) |> 
+  arrange(desc(度数))
+
+```
+
+それなりの数の人たちが回答している。
+
+## 全体傾向(該当率)
+
+```{r}
+data.frame(
+  "楽しみを奪う" = df$v17_3_reason_reduce_enjoyment |> mean(na.rm = TRUE) |> round(2),
+  "守るのが難しい" = df$v17_3_reason_difficult_to_follow |> mean(na.rm = TRUE) |> round(2),
+  "議論不十分" = df$v17_3_reason_insufficient_discussion |> mean(na.rm = TRUE) |> round(2),
+  "誰も守らない" = df$v17_3_reason_unlikely_to_be_followed |> mean(na.rm = TRUE) |> round(2),
+  "ルールが曖昧" = df$v17_3_reason_ambiguous_rule |> mean(na.rm = TRUE) |> round(2),
+  "ルールに抜け道" = df$v17_3_reason_has_loopholes |> mean(na.rm = TRUE) |> round(2)
+) |> 
+  pivot_longer(
+    cols = everything(),
+    names_to = "もっとも重要でない理由",
+    values_to = "該当率"
+  ) |> 
+  arrange(desc(該当率))
+
+```
+
+「楽しみを奪う」が圧倒的。議論不十分の該当率の小ささをみると、手続き的公正とかよりも結局は自己利益が判断基準になっているのでは。
+
+## 竿3本ルールを「もっとも重要でない」と考える人の傾向（度数）
+
+```{r}
+df2 <- df |> filter(v17_2_max_rods_three == 1)
+
+data.frame(
+  "楽しみを奪う" = df2$v17_3_reason_reduce_enjoyment |> sum(na.rm = TRUE) |> round(2),
+  "守るのが難しい" = df2$v17_3_reason_difficult_to_follow |> sum(na.rm = TRUE) |> round(2),
+  "議論不十分" = df2$v17_3_reason_insufficient_discussion |> sum(na.rm = TRUE) |> round(2),
+  "誰も守らない" = df2$v17_3_reason_unlikely_to_be_followed |> sum(na.rm = TRUE) |> round(2),
+  "ルールが曖昧" = df2$v17_3_reason_ambiguous_rule |> sum(na.rm = TRUE) |> round(2),
+  "ルールに抜け道" = df2$v17_3_reason_has_loopholes |> sum(na.rm = TRUE) |> round(2)
+) |> 
+  pivot_longer(
+    cols = everything(),
+    names_to = "もっとも重要でない理由",
+    values_to = "度数"
+  ) |> 
+  arrange(desc(度数))
+
+```
+
+## 竿3本ルールを「もっとも重要でない」と考える人の傾向（該当率）
+
+```{r}
+df2 <- df |> filter(v17_2_max_rods_three == 1)
+
+data.frame(
+  "楽しみを奪う" = df2$v17_3_reason_reduce_enjoyment |> mean(na.rm = TRUE) |> round(2),
+  "守るのが難しい" = df2$v17_3_reason_difficult_to_follow |> mean(na.rm = TRUE) |> round(2),
+  "議論不十分" = df2$v17_3_reason_insufficient_discussion |> mean(na.rm = TRUE) |> round(2),
+  "誰も守らない" = df2$v17_3_reason_unlikely_to_be_followed |> mean(na.rm = TRUE) |> round(2),
+  "ルールが曖昧" = df2$v17_3_reason_ambiguous_rule |> mean(na.rm = TRUE) |> round(2),
+  "ルールに抜け道" = df2$v17_3_reason_has_loopholes |> mean(na.rm = TRUE) |> round(2)
+) |> 
+  pivot_longer(
+    cols = everything(),
+    names_to = "もっとも重要でない理由",
+    values_to = "該当率"
+  ) |> 
+  arrange(desc(該当率))
+
+```
+
+議論不十分の割合が大きくなっているが、そもそも度数が低いので誤差の範囲か。
+
+
+## 3尾ルールを「もっとも重要でない」と考える人の傾向（度数）
+
+```{r}
+df2 <- df |> filter(v17_2_max_catch_three == 1)
+
+data.frame(
+  "楽しみを奪う" = df2$v17_3_reason_reduce_enjoyment |> sum(na.rm = TRUE) |> round(2),
+  "守るのが難しい" = df2$v17_3_reason_difficult_to_follow |> sum(na.rm = TRUE) |> round(2),
+  "議論不十分" = df2$v17_3_reason_insufficient_discussion |> sum(na.rm = TRUE) |> round(2),
+  "誰も守らない" = df2$v17_3_reason_unlikely_to_be_followed |> sum(na.rm = TRUE) |> round(2),
+  "ルールが曖昧" = df2$v17_3_reason_ambiguous_rule |> sum(na.rm = TRUE) |> round(2),
+  "ルールに抜け道" = df2$v17_3_reason_has_loopholes |> sum(na.rm = TRUE) |> round(2)
+) |> 
+  pivot_longer(
+    cols = everything(),
+    names_to = "もっとも重要でない理由",
+    values_to = "度数"
+  ) |> 
+  arrange(desc(度数)) |> 
+  ggplot(aes(x = reorder(もっとも重要でない理由, 度数), y = 度数)) +
+  geom_col()
+
+```
+
+度数で見て、やはり「楽しみを奪う」というのが人々が3尾ルールを低く評価する要因のようだ。
+
+
+## 3尾ルールを「もっとも重要でない」と考える人の傾向（該当率）
+
+```{r}
+df2 <- df |> filter(v17_2_max_catch_three == 1)
+
+data.frame(
+  "楽しみを奪う" = df2$v17_3_reason_reduce_enjoyment |> mean(na.rm = TRUE) |> round(2),
+  "守るのが難しい" = df2$v17_3_reason_difficult_to_follow |> mean(na.rm = TRUE) |> round(2),
+  "議論不十分" = df2$v17_3_reason_insufficient_discussion |> mean(na.rm = TRUE) |> round(2),
+  "誰も守らない" = df2$v17_3_reason_unlikely_to_be_followed |> mean(na.rm = TRUE) |> round(2),
+  "ルールが曖昧" = df2$v17_3_reason_ambiguous_rule |> mean(na.rm = TRUE) |> round(2),
+  "ルールに抜け道" = df2$v17_3_reason_has_loopholes |> mean(na.rm = TRUE) |> round(2)
+) |> 
+  pivot_longer(
+    cols = everything(),
+    names_to = "もっとも重要でない理由",
+    values_to = "該当率"
+  ) |> 
+  arrange(desc(該当率))
+
+```
+
+「楽しみを奪う」が圧倒的に多い。
+
+
+## 場所取りルールを「もっとも重要でない」と考える人の傾向(度数)
+
+```{r}
+df2 <- df |> filter(v17_2_no_spot_reservation == 1)
+
+data.frame(
+  "楽しみを奪う" = df2$v17_3_reason_reduce_enjoyment |> sum(na.rm = TRUE) |> round(2),
+  "守るのが難しい" = df2$v17_3_reason_difficult_to_follow |> sum(na.rm = TRUE) |> round(2),
+  "議論不十分" = df2$v17_3_reason_insufficient_discussion |> sum(na.rm = TRUE) |> round(2),
+  "誰も守らない" = df2$v17_3_reason_unlikely_to_be_followed |> sum(na.rm = TRUE) |> round(2),
+  "ルールが曖昧" = df2$v17_3_reason_ambiguous_rule |> sum(na.rm = TRUE) |> round(2),
+  "ルールに抜け道" = df2$v17_3_reason_has_loopholes |> sum(na.rm = TRUE) |> round(2)
+) |> 
+  pivot_longer(
+    cols = everything(),
+    names_to = "もっとも重要でない理由",
+    values_to = "度数"
+  ) |> 
+  arrange(desc(度数))
+
+```
+
+## 場所取りルールを「もっとも重要でない」と考える人の傾向(該当率)
+
+```{r}
+df2 <- df |> filter(v17_2_no_spot_reservation == 1)
+
+data.frame(
+  "楽しみを奪う" = df2$v17_3_reason_reduce_enjoyment |> mean(na.rm = TRUE) |> round(2),
+  "守るのが難しい" = df2$v17_3_reason_difficult_to_follow |> mean(na.rm = TRUE) |> round(2),
+  "議論不十分" = df2$v17_3_reason_insufficient_discussion |> mean(na.rm = TRUE) |> round(2),
+  "誰も守らない" = df2$v17_3_reason_unlikely_to_be_followed |> mean(na.rm = TRUE) |> round(2),
+  "ルールが曖昧" = df2$v17_3_reason_ambiguous_rule |> mean(na.rm = TRUE) |> round(2),
+  "ルールに抜け道" = df2$v17_3_reason_has_loopholes |> mean(na.rm = TRUE) |> round(2)
+) |> 
+  pivot_longer(
+    cols = everything(),
+    names_to = "もっとも重要でない理由",
+    values_to = "該当率"
+  ) |> 
+  arrange(desc(該当率))
+
+```
 
