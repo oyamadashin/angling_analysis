@@ -13,6 +13,36 @@ source("angling_prepartion.R")
 
 # practice
 
+
+```{r}
+df2 <- df |> mutate(
+  v10_dummy = case_when(
+    v10_formulation_procedure == "知っていて、納得している" | 
+      v10_formulation_procedure == "知らないが、納得している" ~ "納得",
+    v10_formulation_procedure == "知っているが、納得していない" | 
+      v10_formulation_procedure == "知らないし、納得していない" ~ "納得してない",
+    TRUE ~ NA_character_
+  )
+)
+
+data.frame(
+  "竿3本" = df2$v17_2_max_rods_three |> sum(na.rm = TRUE) |> round(2),
+  "魚3尾" = df2$v17_2_max_catch_three|> sum(na.rm = TRUE) |> round(2),
+  "場所取り" = df2$v17_2_no_spot_reservation |> sum(na.rm = TRUE) |> round(2),
+  "どれも同じ" = df2$v17_2_all_equally_important |> sum(na.rm = TRUE) |> round(2),
+  "わからない" = df2$v17_2_dont_know |> sum(na.rm = TRUE) |> round(2)
+) |> 
+  pivot_longer(
+    cols = everything(),
+    names_to = "もっとも重要でないと思うルール",
+    values_to = "度数"
+  ) |> 
+  arrange(desc(度数)) |> 
+  ggplot(aes(x = もっとも重要でないと思うルール, y = 度数)) +
+  geom_col() 
+```
+
+
 ```{r}
 df$date <- factor(
   df$date,
