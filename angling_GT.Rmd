@@ -21,8 +21,12 @@ df |> nrow()
 # 調査日(date)
 
 ```{r date}
-df |> count(date) |> 
-  mutate(prop = round(n / sum(n), 2))
+df |>
+  count(year, date) |>
+  group_by(year) |>
+  mutate(prop = round(n / sum(n), 2)) |>
+  arrange(year, date) |>
+  group_split()
 ```
 
 
@@ -31,14 +35,22 @@ df |> count(date) |>
 # 調査地(survey_area)
 
 ```{r survey_area}
-df |> count(survey_area) |> 
-  mutate(prop = round(n / sum(n), 2))
+
+df |> count(year, survey_area) |>
+  group_by(year) |> 
+  mutate(prop = round(n / sum(n), 2)) |> 
+  arrange(year, survey_area) |> 
+  group_split()
+
 ```
-鱒浦でのサンプルが半分以上。モヨロは10％しかない。
+2024年は鱒浦でほとんど聞いていない。逆に、2025年では鱒浦で半分以上聞いていて、モヨロの回答割合は10％に減る。
+
 
 ```{r survey_area-date}
-df |> count(date, survey_area) |> 
-    mutate(prop = round(n / sum(n), 2))
+df |> count(year, date, survey_area) |> 
+  group_by(year) |> 
+  mutate(prop = round(n / sum(n), 2)) |> 
+  group_split()
 ```
 
 調査日×調査地の度数分布。
@@ -47,14 +59,18 @@ df |> count(date, survey_area) |>
 # 性別(v1_sex)
 
 ```{r v1_sex}
-df |> count(v1_sex) |> 
-  mutate(prop = round(n / sum(n), 2))
+df |> count(year, v1_sex) |>
+  group_by(year) |> 
+  mutate(prop = round(n / sum(n), 2)) |> 
+  group_split()
 ```
-ほとんど男ばかり。
+2024年も2025年もほとんど男ばかり（9割前後）。
 
 ```{r v1_sex-survey_area}
 df |> count(v1_sex, survey_area) |> 
-  mutate(prop = round(n / sum(n), 2))
+  group_by(v1_sex) |> 
+  mutate(prop = round(n / sum(n), 2)) |> 
+  group_split()
 ```
 
 女性がどこに多いかというのは今回のデータではよくわからない。
@@ -63,20 +79,22 @@ df |> count(v1_sex, survey_area) |>
 # 世代(v2_gen)
 
 ```{r v2_gen}
-df |> count(v2_gen) |> 
-  mutate(prop = round(n / sum(n), 2))
+df |> count(year, v2_gen) |>
+  group_by(year) |> 
+  mutate(prop = round(n / sum(n), 2)) |> 
+  group_split()
 ```
 
 50代と70代が多い。
 
 
 ```{r v2_gen-survey_area}
-df |> count(survey_area, v2_gen) |> 
-  group_by(survey_area) |> 
+df |> count(year, survey_area, v2_gen) |> 
+  group_by(year, survey_area) |> 
   mutate(prop = round(n / sum(n), 2)) |> 
   ggplot(aes(x = prop, y = v2_gen)) +
   geom_col() +
-  facet_wrap(~survey_area)
+  facet_wrap(year~survey_area)
 ```
 
 各調査地のサンプルの偏りを考慮すると、調査地ごとで分布に特に違いがあるようには見えない。
@@ -85,34 +103,42 @@ df |> count(survey_area, v2_gen) |>
 # 居住地(v3_residence)
 
 ```{r v3_residence}
-df |> count(v3_residence) |> 
-  mutate(prop = round(n / sum(n), 2))
+df |> count(year, v3_residence) |>
+  group_by(year) |> 
+  mutate(prop = round(n / sum(n), 2)) |> 
+  group_split()
 ```
-道外はゼロ。また、市外から来ている人が9割近い。
+道外はほとんどいない（2024年1人、2025年0）。
+また、市外から来ている人が8割前後。
 
 ```{r}
-df |> count(`「道内」の場合の市町村名`) |> arrange(desc(n))
+df |> count(year, v3_residence_hokkaido) |> 
+  group_by(year) |> 
+  arrange(desc(n)) |> 
+  group_split()
 ```
 
-今回は北見が多い
+2025年は北見が多い（表記揺れがみられる。あとで必要になったらちゃんとやろう）
 
 # 釣り歴(v4_fishing_experience_years)
 
 ```{r v4_fishing_experience_years}
-df |> count(v4_fishing_experience_years) |> 
-  mutate(prop = round(n / sum(n), 2))
+df |> count(year, v4_fishing_experience_years) |> 
+  group_by(year) |> 
+  mutate(prop = round(n / sum(n), 2)) |> 
+  group_split()
 ```
 
-20年以上が半数以上。
+20年以上が半分前後。
 
 
 ```{r v4_fishing_experience_years-survey_area}
-df |> count(survey_area, v4_fishing_experience_years) |> 
-  group_by(survey_area) |> 
+df |> count(year, survey_area, v4_fishing_experience_years) |> 
+  group_by(year, survey_area) |> 
   mutate(prop = round(n / sum(n), 2)) |> 
   ggplot(aes(x = prop, y = v4_fishing_experience_years)) +
   geom_col() +
-  facet_wrap(~survey_area)
+  facet_wrap(year~survey_area)
 ```
 
 調査地によって釣り歴が異なるという感じではない。
@@ -121,20 +147,22 @@ df |> count(survey_area, v4_fishing_experience_years) |>
 # 今シーズン釣り日数(v5_fishing_days_this_season)
 
 ```{r v5_fishing_days_this_season}
-df |> count(v5_fishing_days_this_season) |> 
-  mutate(prop = round(n / sum(n), 2))
+df |> count(year, v5_fishing_days_this_season) |> 
+  group_by(year) |> 
+  mutate(prop = round(n / sum(n), 2)) |> 
+  group_split()
 ```
 
-50日以上はゼロ。あくまで「今シーズン」だからかな。
+50日以上はほとんどいない（2024年は1人で、2025年はゼロ）。
 
 
 ```{r v5_fishing_days_this_season-date}
-df |> count(date, v5_fishing_days_this_season) |> 
-  group_by(date) |> 
+df |> count(year, date, v5_fishing_days_this_season) |> 
+  group_by(year, date) |> 
   mutate(prop = round(n / sum(n), 2)) |> 
   ggplot(aes(x = prop, y = v5_fishing_days_this_season)) +
   geom_col() +
-  facet_wrap(~date)
+  facet_wrap(year~date)
 ```
 
 
@@ -144,11 +172,13 @@ df |> count(date, v5_fishing_days_this_season) |>
 # 昨シーズン釣り日数(v6_fishing_days_last_season)
 
 ```{r v6_fishing_days_last_season}
-df |> count(v6_fishing_days_last_season) |> 
-  mutate(prop = round(n / sum(n), 2))
+df |> count(year, v6_fishing_days_last_season) |> 
+  group_by(year) |> 
+  mutate(prop = round(n / sum(n), 2)) |> 
+  group_split()
 ```
 
-昨シーズンでみても5日未満が最も多い。
+2025年のみ聞いている。昨シーズンでみても5日未満が最も多い。
 
 
 ```{r v6_fishing_days_last_season-survey_area}
@@ -167,29 +197,66 @@ df |> count(survey_area, v6_fishing_days_last_season) |>
 
 ```{r}
 
+df2 <- df |> filter(year == "2024")
+
 data.frame(
-  "場所取り" = df$v7_no_spot_reservation |> mean(na.rm = TRUE) |> round(2),
-  "テント" = df$v7_no_tent |> mean(na.rm = TRUE) |> round(2),
-  "砂丘の破壊" = df$v7_no_dune_destruction |> mean(na.rm = TRUE) |> round(2),
-  "指定区域立入" = df$v7_no_entry_restricted_area |> mean(na.rm = TRUE) |> round(2),
-  "ゴミ投棄" = df$v7_no_littering |> mean(na.rm = TRUE) |> round(2),
-  "指定区域採捕" = df$v7_no_fishing_in_restricted_area |> mean(na.rm = TRUE) |> round(2)
+  "場所取り" = df2$v7_no_spot_reservation |> mean(na.rm = TRUE) |> round(2),
+  "テント" = df2$v7_no_tent |> mean(na.rm = TRUE) |> round(2),
+  "砂丘の破壊" = df2$v7_no_dune_destruction |> mean(na.rm = TRUE) |> round(2),
+  "指定区域立入" = df2$v7_no_entry_restricted_area |> mean(na.rm = TRUE) |> round(2),
+  "ゴミ投棄" = df2$v7_no_littering |> mean(na.rm = TRUE) |> round(2),
+  "指定区域採捕" = df2$v7_no_fishing_in_restricted_area |> mean(na.rm = TRUE) |> round(2)
+)
+
+df2 <- df |> filter(year == "2025")
+
+data.frame(
+  "場所取り" = df2$v7_no_spot_reservation |> mean(na.rm = TRUE) |> round(2),
+  "テント" = df2$v7_no_tent |> mean(na.rm = TRUE) |> round(2),
+  "砂丘の破壊" = df2$v7_no_dune_destruction |> mean(na.rm = TRUE) |> round(2),
+  "指定区域立入" = df2$v7_no_entry_restricted_area |> mean(na.rm = TRUE) |> round(2),
+  "ゴミ投棄" = df2$v7_no_littering |> mean(na.rm = TRUE) |> round(2),
+  "指定区域採捕" = df2$v7_no_fishing_in_restricted_area |> mean(na.rm = TRUE) |> round(2)
 )
 
 ```
-
+全体的に認知は向上している。
 テント、砂丘破壊は認知率が低い。それ以外はほぼ9割認知。
 
 ```{r}
+df2 <- df |> filter(year == "2024")
+
+
 data.frame(
-  "竿3本" = df$v8_max_rods_three |> mean(na.rm = TRUE) |> round(2),
-  "魚3尾" = df$v8_max_catch_three |> mean(na.rm = TRUE) |> round(2),
-  "リリース" = df$v8_discourage_release |> mean(na.rm = TRUE) |> round(2),
-  "ミニボート" = df$v8_discourage_miniboat_use |> mean(na.rm = TRUE) |> round(2),
-  "迷惑駐車" = df$v8_discourage_illegal_parking |> mean(na.rm = TRUE) |> round(2),
-  "キャンプ" = df$v8_discourage_camping |> mean(na.rm = TRUE) |> round(2),
-  "焚き火" = df$v8_discourage_bonfire |> mean(na.rm = TRUE) |> round(2),
-  "トイレ" = df$v8_use_designated_toilets |> mean(na.rm = TRUE) |> round(2)
+  "竿3本" = df2$v8_max_rods_three |> mean(na.rm = TRUE) |> round(2),
+  "魚3尾" = df2$v8_max_catch_three |> mean(na.rm = TRUE) |> round(2),
+  "リリース" = df2$v8_discourage_release |> mean(na.rm = TRUE) |> round(2),
+  "ミニボート" = df2$v8_discourage_miniboat_use |> mean(na.rm = TRUE) |> round(2),
+  "迷惑駐車" = df2$v8_discourage_illegal_parking |> mean(na.rm = TRUE) |> round(2),
+  "キャンプ" = df2$v8_discourage_camping |> mean(na.rm = TRUE) |> round(2),
+  "焚き火" = df2$v8_discourage_bonfire |> mean(na.rm = TRUE) |> round(2),
+  "トイレ" = df2$v8_use_designated_toilets |> mean(na.rm = TRUE) |> round(2)
+) |> 
+  pivot_longer(
+    cols = everything(),
+    names_to = "守る事項",
+    values_to = "認知率"
+  ) |> 
+  arrange(desc(認知率))
+
+
+df2 <- df |> filter(year == "2025")
+
+
+data.frame(
+  "竿3本" = df2$v8_max_rods_three |> mean(na.rm = TRUE) |> round(2),
+  "魚3尾" = df2$v8_max_catch_three |> mean(na.rm = TRUE) |> round(2),
+  "リリース" = df2$v8_discourage_release |> mean(na.rm = TRUE) |> round(2),
+  "ミニボート" = df2$v8_discourage_miniboat_use |> mean(na.rm = TRUE) |> round(2),
+  "迷惑駐車" = df2$v8_discourage_illegal_parking |> mean(na.rm = TRUE) |> round(2),
+  "キャンプ" = df2$v8_discourage_camping |> mean(na.rm = TRUE) |> round(2),
+  "焚き火" = df2$v8_discourage_bonfire |> mean(na.rm = TRUE) |> round(2),
+  "トイレ" = df2$v8_use_designated_toilets |> mean(na.rm = TRUE) |> round(2)
 ) |> 
   pivot_longer(
     cols = everything(),
@@ -206,10 +273,12 @@ data.frame(
 ```{r}
 df |>
   filter(!is.na(v10_formulation_procedure)) |> 
-  count(v10_formulation_procedure) |> 
+  count(year, v10_formulation_procedure) |> 
+  group_by(year) |> 
   mutate(
     prop = round(n / sum(n), 2)
-  )
+  ) |> 
+  group_split()
 ```
 
 2024年度に比べ、知っていて納得している人が10%減り、知っていて納得していない人がやや増えている。
@@ -218,7 +287,8 @@ df |>
 # v11 手順改善はどうするべき？
 
 ```{r}
-df2 <- df |> filter(v10_formulation_procedure == "知っているが、納得していない" | v10_formulation_procedure =="知っているが、納得していない" )
+df2 <- df |> filter(year == "2024") |> 
+  filter(v10_formulation_procedure == "知っているが、納得していない" | v10_formulation_procedure =="知っているが、納得していない" )
 
 
 data.frame(
@@ -233,19 +303,37 @@ data.frame(
     values_to = "該当率"
   ) |> arrange(desc(該当率))
 
+
+df2 <- df |> filter(year == "2025") |> 
+  filter(v10_formulation_procedure == "知っているが、納得していない" | v10_formulation_procedure =="知っているが、納得していない" )
+
+
+data.frame(
+  "流れを公開" = df2$v11_improve_transparency_process |> mean(na.rm = TRUE) |> round(2),
+  "意見反映" = df2$v11_reflect_fishers_opinions |> mean(na.rm = TRUE) |> round(2),
+  "意見機会確保" = df2$v11_improve_opportunity_for_input |> mean(na.rm = TRUE) |> round(2),
+  "ルールいらない" = df2$v11_no_need_for_rule_making |> mean(na.rm = TRUE) |> round(2)
+) |> 
+  pivot_longer(
+    cols = everything(),
+    names_to = "改善方法",
+    values_to = "該当率"
+  ) |> arrange(desc(該当率))
 ```
-改善方法の支持傾向は2024年度調査とほとんど変わらない。
+「意見反映」「流れを公開」「ルールいらない」は減っている。「意見機会確保」は横ばい。
 
 
 # v17_1 ルール（もっとも重要）
 
 ```{r}
+df2 <- df |> filter(year == "2025")
+
 data.frame(
-  "竿3本" = df$v17_1_max_rods_three |> mean(na.rm = TRUE) |> round(2),
-  "魚3尾" = df$v17_1_max_catch_three|> mean(na.rm = TRUE) |> round(2),
-  "場所取り" = df$v17_1_no_spot_reservation |> mean(na.rm = TRUE) |> round(2),
-  "どれも同じ" = df$v17_1_all_equally_important |> mean(na.rm = TRUE) |> round(2),
-  "わからない" = df$v17_1_dont_know |> mean(na.rm = TRUE) |> round(2)
+  "竿3本" = df2$v17_1_max_rods_three |> mean(na.rm = TRUE) |> round(2),
+  "魚3尾" = df2$v17_1_max_catch_three|> mean(na.rm = TRUE) |> round(2),
+  "場所取り" = df2$v17_1_no_spot_reservation |> mean(na.rm = TRUE) |> round(2),
+  "どれも同じ" = df2$v17_1_all_equally_important |> mean(na.rm = TRUE) |> round(2),
+  "わからない" = df2$v17_1_dont_know |> mean(na.rm = TRUE) |> round(2)
 ) |> 
   pivot_longer(
     cols = everything(),
@@ -262,12 +350,14 @@ data.frame(
 # v17_2 ルール（もっとも重要でない）
 
 ```{r}
+df2 <- df |> filter(year == "2025")
+
 data.frame(
-  "竿3本" = df$v17_2_max_rods_three |> mean(na.rm = TRUE) |> round(2),
-  "魚3尾" = df$v17_2_max_catch_three|> mean(na.rm = TRUE) |> round(2),
-  "場所取り" = df$v17_2_no_spot_reservation |> mean(na.rm = TRUE) |> round(2),
-  "どれも同じ" = df$v17_2_all_equally_important |> mean(na.rm = TRUE) |> round(2),
-  "わからない" = df$v17_2_dont_know |> mean(na.rm = TRUE) |> round(2)
+  "竿3本" = df2$v17_2_max_rods_three |> mean(na.rm = TRUE) |> round(2),
+  "魚3尾" = df2$v17_2_max_catch_three|> mean(na.rm = TRUE) |> round(2),
+  "場所取り" = df2$v17_2_no_spot_reservation |> mean(na.rm = TRUE) |> round(2),
+  "どれも同じ" = df2$v17_2_all_equally_important |> mean(na.rm = TRUE) |> round(2),
+  "わからない" = df2$v17_2_dont_know |> mean(na.rm = TRUE) |> round(2)
 ) |> 
   pivot_longer(
     cols = everything(),
@@ -284,12 +374,14 @@ data.frame(
 度数でも見てみた。
 
 ```{r}
+df2 <- df |> filter(year == "2025")
+
 data.frame(
-  "竿3本" = df$v17_2_max_rods_three |> sum(na.rm = TRUE) |> round(2),
-  "魚3尾" = df$v17_2_max_catch_three|> sum(na.rm = TRUE) |> round(2),
-  "場所取り" = df$v17_2_no_spot_reservation |> sum(na.rm = TRUE) |> round(2),
-  "どれも同じ" = df$v17_2_all_equally_important |> sum(na.rm = TRUE) |> round(2),
-  "わからない" = df$v17_2_dont_know |> sum(na.rm = TRUE) |> round(2)
+  "竿3本" = df2$v17_2_max_rods_three |> sum(na.rm = TRUE) |> round(2),
+  "魚3尾" = df2$v17_2_max_catch_three|> sum(na.rm = TRUE) |> round(2),
+  "場所取り" = df2$v17_2_no_spot_reservation |> sum(na.rm = TRUE) |> round(2),
+  "どれも同じ" = df2$v17_2_all_equally_important |> sum(na.rm = TRUE) |> round(2),
+  "わからない" = df2$v17_2_dont_know |> sum(na.rm = TRUE) |> round(2)
 ) |> 
   pivot_longer(
     cols = everything(),
@@ -332,13 +424,15 @@ data.frame(
 ## 全体傾向(該当率)
 
 ```{r}
+df2 <- df |> filter(year == "2025")
+
 data.frame(
-  "楽しみを奪う" = df$v17_3_reason_reduce_enjoyment |> mean(na.rm = TRUE) |> round(2),
-  "守るのが難しい" = df$v17_3_reason_difficult_to_follow |> mean(na.rm = TRUE) |> round(2),
-  "議論不十分" = df$v17_3_reason_insufficient_discussion |> mean(na.rm = TRUE) |> round(2),
-  "誰も守らない" = df$v17_3_reason_unlikely_to_be_followed |> mean(na.rm = TRUE) |> round(2),
-  "ルールが曖昧" = df$v17_3_reason_ambiguous_rule |> mean(na.rm = TRUE) |> round(2),
-  "ルールに抜け道" = df$v17_3_reason_has_loopholes |> mean(na.rm = TRUE) |> round(2)
+  "楽しみを奪う" = df2$v17_3_reason_reduce_enjoyment |> mean(na.rm = TRUE) |> round(2),
+  "守るのが難しい" = df2$v17_3_reason_difficult_to_follow |> mean(na.rm = TRUE) |> round(2),
+  "議論不十分" = df2$v17_3_reason_insufficient_discussion |> mean(na.rm = TRUE) |> round(2),
+  "誰も守らない" = df2$v17_3_reason_unlikely_to_be_followed |> mean(na.rm = TRUE) |> round(2),
+  "ルールが曖昧" = df2$v17_3_reason_ambiguous_rule |> mean(na.rm = TRUE) |> round(2),
+  "ルールに抜け道" = df2$v17_3_reason_has_loopholes |> mean(na.rm = TRUE) |> round(2)
 ) |> 
   pivot_longer(
     cols = everything(),
@@ -351,10 +445,11 @@ data.frame(
 
 「楽しみを奪う」が圧倒的。議論不十分の該当率の小ささをみると、手続き的公正とかよりも結局は自己利益が判断基準になっているのでは。
 
+
 ## 竿3本ルールを「もっとも重要でない」と考える人の傾向（度数）
 
 ```{r}
-df2 <- df |> filter(v17_2_max_rods_three == 1)
+df2 <- df |> filter(year == "2025" & v17_2_max_rods_three == 1)
 
 data.frame(
   "楽しみを奪う" = df2$v17_3_reason_reduce_enjoyment |> sum(na.rm = TRUE) |> round(2),
@@ -376,7 +471,7 @@ data.frame(
 ## 竿3本ルールを「もっとも重要でない」と考える人の傾向（該当率）
 
 ```{r}
-df2 <- df |> filter(v17_2_max_rods_three == 1)
+df2 <- df |> filter(year == "2025" & v17_2_max_rods_three == 1)
 
 data.frame(
   "楽しみを奪う" = df2$v17_3_reason_reduce_enjoyment |> mean(na.rm = TRUE) |> round(2),
@@ -401,7 +496,7 @@ data.frame(
 ## 3尾ルールを「もっとも重要でない」と考える人の傾向（度数）
 
 ```{r}
-df2 <- df |> filter(v17_2_max_catch_three == 1)
+df2 <- df |> filter(year == "2025" & v17_2_max_catch_three == 1)
 
 data.frame(
   "楽しみを奪う" = df2$v17_3_reason_reduce_enjoyment |> sum(na.rm = TRUE) |> round(2),
@@ -428,7 +523,7 @@ data.frame(
 ## 3尾ルールを「もっとも重要でない」と考える人の傾向（該当率）
 
 ```{r}
-df2 <- df |> filter(v17_2_max_catch_three == 1)
+df2 <- df |> filter(year == "2025" &v17_2_max_catch_three == 1)
 
 data.frame(
   "楽しみを奪う" = df2$v17_3_reason_reduce_enjoyment |> mean(na.rm = TRUE) |> round(2),

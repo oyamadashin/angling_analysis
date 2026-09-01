@@ -3,14 +3,38 @@
 library(tidyverse)
 
 
-# データインポート
-df <- read_csv("angling_data_2025.csv")
+
+# データインポート----
+data_2024 <- read_csv("angling_data_2024.csv")
+data_2025 <- read_csv("angling_data_2025.csv")
+
+# データを結合----
+# 結合時に、idが年ごとで区別できるようにしている
+
+df <- bind_rows(
+  data_2024,
+  data_2025
+) |>
+  mutate(
+    respondent_id = paste0(year, "_", id)
+  )
+
+df |>
+  group_by(year) |>
+  summarise(
+    across(
+      everything(),
+      ~ sum(is.na(.x))
+    )
+  )
+
 
 # date----
 ## レベルを設定
 df$date <- factor(
   df$date,
-  levels = c("9月27日_プレ", "10月4日", "10月5日", "10月17日", "10月19日", "10月24日"),
+  levels = c("9月27日_プレ", "10月4日", "10月5日", "10月15日", "10月17日", 
+             "10月18日","10月19日", "10月24日"),
   ordered = TRUE
 )
 

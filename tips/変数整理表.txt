@@ -1,0 +1,91 @@
+
+
+| 変数名                                             | 概要                                                         | 2024・2025共通 | 2024のみ | 2025のみ |
+| -------------------------------------------------- | ------------------------------------------------------------ | -------------- | -------- | -------- |
+| id                                                 |                                                              |                |          |          |
+| year                                               |                                                              | 1              |          |          |
+| date                                               |                                                              | 1              |          |          |
+| v1_sex                                             |                                                              | 1              |          |          |
+| v2_gen                                             | 年齢                                                         | 1              |          |          |
+| v3_residence                                       | 居住地は道内か道外か                                         | 1              |          |          |
+| v3_residence_hokkaido                              | 道内居住の場合の市町村名                                     | 1              |          |          |
+| v3_residence_not_hokkaido                          | 道外居住の場合の市町村名                                     | 1              |          |          |
+| v4_fishing_experience_years                        | 釣り歴                                                       | 1              |          |          |
+| v5_fishing_days_this_season                        | 今シーズン網走海浜でサケマス釣りした日数                     | 1              |          |          |
+| v6_fishing_days_last_season                        | 昨シーズン網走海浜でサケマス釣りした日数                     |                |          | 1        |
+| v7_no_spot_reservation                             | 知っているルール（禁止事項）：場所取り禁止                   | 1              |          |          |
+| v7_no_no_littering                                 | 知っているルール（禁止事項）：ゴミ、残滓の投棄禁止           | 1              |          |          |
+| v7_no_entry_restricted_area                        | 知っているルール（禁止事項）：指定区域、期間の立ち入り禁止   | 1              |          |          |
+| v7_no_fishing_in_restricted_area                   | 知っているルール（禁止事項）：指定区域、期間のサケマス採捕禁止 | 1              |          |          |
+| v7_no_dune_destruction                             | 知っているルール（禁止事項）：砂丘の破壊禁止                 | 1              |          |          |
+| v7_no_tent                                         | 知っているルール（禁止事項）：テント常設禁止                 | 1              |          |          |
+| v8_max_rods_three                                  | 知っているルール（守る事項）：竿は3本まで                    | 1              |          |          |
+| v8_max_catch_three                                 | 知っているルール（守る事項）：尾数は3尾まで                  | 1              |          |          |
+| v8_discourage_illegal_parking                      | 知っているルール（守る事項）：迷惑駐車やめよう               | 1              |          |          |
+| v8_discourage_bonfire                              | 知っているルール（守る事項）：直火での焚き火やめよう         | 1              |          |          |
+| v8_discourage_release                              | 知っているルール（守る事項）：リリースやめよう               | 1              |          |          |
+| v8_discourage_camping                              | 知っているルール（守る事項）：キャンプ的行為はキャンプ場で   | 1              |          |          |
+| v8_discourage_miniboat_use                         | 知っているルール（守る事項）：海でのミニボートはやめよう     | 1              |          |          |
+| v8_use_designated_toilets                          | 知っているルール（守る事項）：トイレは決められた場所で       | 1              |          |          |
+| v8_dont_know                                       | 知っているルール（守る事項）：知らなかった                   |                | 1        |          |
+| v9_info_friends_word_of_mouth                      | ルールの情報源：釣り仲間の口コミ                             |                |          |          |
+| v9_info_tv_newspaper                               | ルールの情報源：テレビや新聞                                 |                |          |          |
+| v9_info_fishing_magazine                           | ルールの情報源：釣り雑誌                                     |                |          |          |
+| v9_info_web_blog                                   | ルールの情報源：ブログなどのWeb記事                          |                |          |          |
+| v9_info_personal_sns                               | ルールの情報源：個人のSNS                                    |                |          |          |
+| v9_checked_last_year_only                          | ルールの情報源：昨年確認したので今は確認していない           |                |          | 1        |
+| v9_never_checked                                   | ルールの情報源：今まで確認したことがない                     |                |          | 1        |
+| v9_info_abashiri_city_website                      | ルールの情報源：網走市のホームページ                         |                |          | 1        |
+| v9_info_abashiri_city_sns                          | ルールの情報源：網走市のSNS                                  |                |          | 1        |
+| v9_info_beach_signboard                            | ルールの情報源：浜辺の看板                                   |                |          | 1        |
+| v9_info_abashiri_city                              | ルールの情報源：網走市のお知らせ                             |                | 1        |          |
+| v9_other                                           | ルールの情報源：その他                                       |                |          | 1        |
+| v10_formulation_procedure                          | ルール策定手順を知っているか、納得しているか                 | 1              |          |          |
+| v11_improve_transparency_process                   | ルール策定手順改善方法：策定の流れを十分に公開する           | 1              |          |          |
+| v11_reflect_fishers_opinions                       | ルール策定手順改善方法：ルールに釣り人の意見を十分に反映させる | 1              |          |          |
+| v11_improve_opportunity_for_input                  | ルール策定手順改善方法：多様な人々が意見を伝える機会を十分に確保する | 1              |          |          |
+| v11_no_need_for_rule_making                        | ルール策定手順改善方法：そもそもルール策定は必要ない         | 1              |          |          |
+| v11_other                                          | ルール策定手順改善方法：その他                               |                |          | 1        |
+| v12_fisher_burden                                  | サケマス資源の持続的利用のために漁業者が費用負担していることを知っているか | 1              |          |          |
+| v13_user_burden                                    | 利用者負担の原則を導入することに賛成か                       |                |          | 1        |
+| v14_license_system                                 | ライセンス制導入に賛成か                                     | 1              |          |          |
+| v14_license_system2                                | （より具体的な制度内容を示した上で）ライセンス制導入に賛成か |                | 1        |          |
+| v15_1_purchase_intent                              | ライセンスを購入するか                                       |                |          | 1        |
+| v15_2_license_type                                 | 購入したいのはどのライセンスか                               |                |          | 1        |
+| v15_3_license_wtp                                  | 1シーズン総額でライセンスにいくらまで支払っても良いか        |                |          | 1        |
+| v15_4_under5k                                      | 5000円以下払っていい人の具体的なWTP                          |                |          | 1        |
+| v15_5_over150k                                     | 15万円以上払っていい人の具体的なWTP                          |                |          | 1        |
+| v16_desired_fishing_days                           | ライセンス制が導入された場合、何日サケマス釣りに行きたいか   |                |          | 1        |
+| v17_1_max_rods_three                               | もっとも重要なルール：竿3本                                  |                |          | 1        |
+| v17_1_max_catch_three                              | もっとも重要なルール：3尾                                    |                |          | 1        |
+| v17_1_no_spot_reservation                          | もっとも重要なルール：場所取り禁止                           |                |          | 1        |
+| v17_1_all_equally_important                        | もっとも重要なルール：どれも同じくらい重要                   |                |          | 1        |
+| v17_1_dont_know                                    | もっとも重要なルール：わからない                             |                |          | 1        |
+| v17_2_max_rods_three                               | もっとも重要でないルール：竿3本                              |                |          | 1        |
+| v17_2_max_catch_three                              | もっとも重要でないルール：3尾                                |                |          | 1        |
+| v17_2_no_spot_reservation                          | もっとも重要でないルール：場所取り禁止                       |                |          | 1        |
+| v17_2_all_equally_important                        | もっとも重要でないルール：どれも同じくらい重要               |                |          | 1        |
+| v17_2_dont_know                                    | もっとも重要でないルール：わからない                         |                |          | 1        |
+| v17_3_reason_reduce_enjoyment                      | そのルールがもっとも重要でないと思う理由：釣りの楽しみを奪う |                |          | 1        |
+| v17_3_reason_insufficient_discussion               | そのルールがもっとも重要でないと思う理由：守ることが難しい   |                |          | 1        |
+| v17_3_reason_insufficient_discussion               | そのルールがもっとも重要でないと思う理由：議論が不十分       |                |          | 1        |
+| v17_3_reason_ambiguous_rule                        | そのルールがもっとも重要でないと思う理由：ルールが曖昧       |                |          | 1        |
+| v17_3_reason_difficult_to_follow                   | そのルールがもっとも重要でないと思う理由：守ることが難しい   |                |          | 1        |
+| 17_3_reason_unlikely_to_be_followed                | そのルールがもっとも重要でないと思う理由：誰も守らない       |                |          | 1        |
+| v17_3_reason_has_loopholes                         | そのルールがもっとも重要でないと思う理由：抜け穴がある       |                |          | 1        |
+| v17_3_other                                        | そのルールがもっとも重要でないと思う理由：その他             |                |          | 1        |
+| v18_household_income                               | 世帯年収                                                     |                |          | 1        |
+| free_text_response                                 | ルールに関する自由記述                                       | 1              |          |          |
+| v19_angling_perspective                            | 「ルールによって社会的に望ましい釣り場が実現されること」と「ルールに縛られない自由な釣りを楽しむこと」のどちらが重要と思うか<br />（社会的に望ましい釣り場を重視する方が＋） |                | 1        |          |
+| v20_max_rods_three_social_perspective              | 社会的に望ましい釣り場を実現する上で「竿3本」はどれくらい重要か |                | 1        |          |
+| v20_max_catch_three_social_perspective             | 社会的に望ましい釣り場を実現する上で「3尾」はどれくらい重要か |                | 1        |          |
+| v20_no_spot_reservation_social_perspective         | 社会的に望ましい釣り場を実現する上で「場所取り禁止」はどれくらい重要か |                | 1        |          |
+| v20_no_tent_social_perspective                     | 社会的に望ましい釣り場を実現する上で「テント常設禁止」はどれくらい重要か |                | 1        |          |
+| v20_discourage_illegal_parking_social_perspective  | 社会的に望ましい釣り場を実現する上で「迷惑駐車をしない」はどれくらい重要か |                | 1        |          |
+| v20_use_designated_toilets_social_perspective      | 社会的に望ましい釣り場を実現する上で「トイレは決められた場所で」はどれくらい重要か |                | 1        |          |
+| v20_max_rods_three_liberty_perspective             | 「竿3本」はどれくらい自由の妨げか                            |                | 1        |          |
+| v20_max_catch_three_liberty_perspective            | 「3尾」はどれくらい自由の妨げか                              |                | 1        |          |
+| v20_no_spot_reservation_liberty_perspective        | 「場所取り禁止」はどれくらい自由の妨げか                     |                | 1        |          |
+| v20_no_tent_liberty_perspective                    | 「テント常設禁止」はどれくらい自由の妨げか                   |                | 1        |          |
+| v20_discourage_illegal_parking_liberty_perspective | 「迷惑駐車をしない」はどれくらい自由の妨げか                 |                | 1        |          |
+| v20_use_designated_toilets_libertyl_perspective    | 「トイレは決められた場所で」はどれくらい自由の妨げか         |                | 1        |          |
