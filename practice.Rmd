@@ -15,6 +15,29 @@ source("angling_prepartion.R")
 
 
 ```{r}
+df |> count(v10_formulation_procedure)
+```
+
+
+
+```{r}
+df |> mutate(
+  v10_is_not_convinced = case_when(
+    v10_formulation_procedure == "知っていて、納得している" ~ 0,
+    v10_formulation_procedure == "知らないが、納得している" ~ 0,
+    v10_formulation_procedure == "知っているが、納得していない" ~ 1,
+    v10_formulation_procedure == "知らないし、納得していない" ~ 1,
+    TRUE ~ NA_real_
+  )
+)
+
+
+
+
+```
+
+
+```{r}
 library(tidyverse)
 
 # データインポート

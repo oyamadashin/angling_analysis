@@ -1,0 +1,356 @@
+---
+title: "eda_rule_procedure_eval"
+output: html_document
+date: "2026-09-01"
+# ルール策定プロセスに対する評価のEDA
+---
+
+# 準備
+
+
+```{r message=FALSE}
+source("angling_prepartion.R")
+```
+
+
+# v2_gen × v10
+
+```{r}
+df |>
+  filter(!is.na(v10_formulation_procedure)) |> 
+  count(v2_gen, v10_formulation_procedure) |> 
+  group_by(v2_gen) |> 
+  mutate(
+    prop = round(n / sum(n), 2)
+  ) |> 
+  group_split()
+```
+
+50～70代くらいに納得していない人が多い。
+
+
+# v3_residence × v10
+
+```{r}
+df |>
+  filter(!is.na(v10_formulation_procedure)) |> 
+  count(v3_residence, v10_formulation_procedure) |> 
+  group_by(v3_residence) |> 
+  mutate(
+    prop = round(n / sum(n), 2)
+  ) |> 
+  group_split()
+```
+網走市内の方が「知らない」という人の割合は少ない。「納得していない」割合は網走市内も道内も変わらない。
+
+
+# v4_fishing_experience_years × v10
+
+```{r}
+df |>
+  filter(!is.na(v10_formulation_procedure)) |> 
+  count(year, v4_fishing_experience_years, v10_formulation_procedure) |> 
+  group_by(year, v4_fishing_experience_years) |> 
+  mutate(
+    prop = round(n / sum(n), 2)
+  ) |> 
+  group_split()
+```
+
+釣り歴の長い人ほど「納得していない」人が多い
+
+
+# v5_fishing_days_this_season × v10
+
+```{r}
+df |>
+  filter(!is.na(v10_formulation_procedure)) |> 
+  count(v5_fishing_days_this_season, v10_formulation_procedure) |> 
+  group_by(v5_fishing_days_this_season) |> 
+  mutate(
+    prop = round(n / sum(n), 2)
+  ) |> 
+  group_split()
+```
+
+釣り日数が長くなると「知らない」割合は減る。一方、「納得していない」割合がやや増える。
+
+```{r}
+df |>
+  filter(!is.na(v10_formulation_procedure)) |> 
+  count(v5_fishing_days_this_season, v10_formulation_procedure) |> 
+  group_by(v5_fishing_days_this_season) |> 
+  mutate(
+    prop = round(n / sum(n), 2)
+  ) |> 
+  group_split()
+```
+
+
+# v12_fisher_burden × v10
+
+```{r}
+df |>
+  filter(!is.na(v10_formulation_procedure)) |> 
+  count(v12_fisher_burden, v10_formulation_procedure) |> 
+  group_by(v12_fisher_burden) |> 
+  mutate(
+    prop = round(n / sum(n), 2)
+  ) |> 
+  group_split()
+```
+
+漁業者の負担を知っている人の方が納得していない
+
+
+# v14_license_system × v10
+
+```{r}
+df |>
+  filter(!is.na(v10_formulation_procedure)) |> 
+  count(v14_license_system, v10_formulation_procedure) |> 
+  group_by(v14_license_system) |> 
+  mutate(
+    prop = round(n / sum(n), 2)
+  ) |> 
+  group_split()
+```
+
+納得していない人はライセンス制にも反対の傾向
+
+
+#「納得していない」の規定要因
+
+
+## 不納得割合の年次差
+
+```{r}
+df |>
+  group_by(year) |>
+  summarise(
+    有効回答数 = sum(!is.na(v10_is_not_convinced)),
+    不納得人数 = sum(v10_is_not_convinced == 1, na.rm = TRUE),
+    不納得割合 = round(不納得人数 / 有効回答数, 2),
+    .groups = "drop"
+  )
+```
+2025年の方が不納得割合が増えている
+
+## 釣り歴との関連
+
+```{r}
+df |>
+  group_by(year, v4_fishing_experience_years) |>
+  summarise(
+    有効回答数 = sum(!is.na(v10_is_not_convinced)),
+    不納得人数 = sum(v10_is_not_convinced == 1, na.rm = TRUE),
+    不納得割合 = round(不納得人数 / 有効回答数, 2),
+    .groups = "drop"
+  )
+```
+2025年になると、釣り歴20年以上の方が納得していない割合が増えている
+
+
+## 漁業者負担認知（v_12）との関連
+
+```{r}
+df |>
+  group_by(year, v12_fisher_burden) |>
+  summarise(
+    有効回答数 = sum(!is.na(v10_is_not_convinced)),
+    不納得人数 = sum(v10_is_not_convinced == 1, na.rm = TRUE),
+    不納得割合 = round(不納得人数 / 有効回答数, 2),
+    .groups = "drop"
+  )
+```
+
+漁業者負担を認知している人の方が「納得できない」割合が大きい。
+
+### 釣り歴と漁業者負担認知の重なり具合は？
+
+```{r}
+df |> group_by(year, v4_fishing_experience_years) |> 
+  count(v4_fishing_experience_years, v12_fisher_burden) |> 
+  mutate(prop = round(n / sum(n), 2))
+```
+
+2025年だけ、釣り歴20年以上の層で、漁業者負担を認知している人の割合が大きい。
+
+
+### 2025年の釣り歴20年以上の層だけで、漁業者負担認知確認
+
+```{r}
+df2 <- df |> filter(year == 2025  & 
+                      v4_fishing_experience_years == "20年以上")
+
+df2 |>
+  group_by(year, v12_fisher_burden) |>
+  summarise(
+    有効回答数 = sum(!is.na(v10_is_not_convinced)),
+    不納得人数 = sum(v10_is_not_convinced == 1, na.rm = TRUE),
+    不納得割合 = round(不納得人数 / 有効回答数, 2),
+    .groups = "drop"
+  )
+```
+
+ほとんどの人が漁業者負担を「知っている」ので、それ以外の人たちとで不納得割合の意味ある比較ができない。
+→　全体として、漁業者負担を知っているほど不納得といえるかどうかは微妙
+
+
+## 年齢との関連
+
+```{r}
+df |>
+  group_by(year, v2_gen) |>
+  summarise(
+    有効回答数 = sum(!is.na(v10_is_not_convinced)),
+    不納得人数 = sum(v10_is_not_convinced == 1, na.rm = TRUE),
+    不納得割合 = round(不納得人数 / 有効回答数, 2),
+    .groups = "drop"
+  )
+```
+2025年の50代から70代は納得していない割合が大きい
+
+### 年齢と釣り歴の重なり具合は？
+
+```{r}
+df |> group_by(year, v2_gen) |> 
+  count(v2_gen, v4_fishing_experience_years) |> 
+  mutate(prop = round(n / sum(n), 2))
+```
+
+年齢が高いほど、釣り歴は長くなる。不納得割合に釣り歴が影響するのか年齢が影響するのかは回帰をやらないとわからない。
+
+
+
+## m1
+
+調査実施年、釣り歴、年齢あたりが説明変数として重要そうなので回帰をやってみる。
+
+```{r}
+m1 <- glm(
+  v10_is_not_convinced ~ factor(year) + v4_fishing_experience_years + v2_gen,
+  data = df,
+  family = binomial
+)
+
+m1 |> summary()
+```
+基準カテゴリーのv4_5年未満とv2_20代はいずれもサンプルが非常に少ないので、この結果をそのまま受け入れるのは危険。　→　v4とv2の区分を簡略化しよう。
+
+
+
+### v2の簡略化
+
+```{r}
+table(df$year, df$v2_gen)
+table(df$year, df$v2_gen, df$v10_is_not_convinced)
+
+# 20～40代をまとめて5カテゴリーにした場合
+df <- df |>
+  mutate(
+    age_group = case_when(
+      v2_gen %in% c("20代", "30代", "40代") ~ "20～40代",
+      TRUE ~ as.character(v2_gen)
+    ),
+    age_group = factor(
+      age_group,
+      levels = c("20～40代", "50代", "60代", "70代", "80代以上"),
+      ordered = FALSE
+    )
+  )
+
+# 3カテゴリーにした場合
+df <- df |>
+  mutate(
+    age_group3 = case_when(
+      v2_gen %in% c("20代", "30代", "40代") ~ "50歳未満",
+      v2_gen %in% c("50代", "60代", "70代") ~ "50～70代",
+      v2_gen == "80代以上" ~ "80歳以上",
+      TRUE ~ NA_character_
+    ),
+    age_group3 = factor(
+      age_group3,
+      levels = c("50歳未満", "50～70代", "80歳以上"),
+      ordered = FALSE
+    )
+  )
+
+table(df$year, df$age_group)
+table(df$year, df$age_group, df$v10_is_not_convinced)
+```
+20代～40代をまとめて、サンプル数を他の世代と揃えてみた。
+
+
+### v4の簡略化
+
+```{r}
+table(df$year, df$v4_fishing_experience_years, df$v10_is_not_convinced)
+
+
+# 10年を閾値にする場合
+df <- df |>
+  mutate(
+    fishing_10plus = case_when(
+      v4_fishing_experience_years %in%
+        c("5年未満", "5年以上10年未満") ~ 0,
+      v4_fishing_experience_years %in%
+        c("10年以上20年未満", "20年以上") ~ 1,
+      TRUE ~ NA_real_
+    )
+  )
+
+# 20年を閾値にする場合
+df <- df |>
+  mutate(
+    fishing_20plus = case_when(
+      v4_fishing_experience_years %in%
+        c("5年未満", "5年以上10年未満", "10年以上20年未満") ~ 0,
+      v4_fishing_experience_years %in%
+        c("20年以上") ~ 1,
+      TRUE ~ NA_real_
+    )
+  )
+
+table(df$year, df$fishing_10plus, df$v10_is_not_convinced)
+table(df$year, df$fishing_20plus, df$v10_is_not_convinced)
+```
+## m2
+
+```{r}
+m2 <- glm(
+  v10_is_not_convinced ~ factor(year) + fishing_10plus + age_group,
+  data = df,
+  family = binomial
+)
+
+m2 |> summary()
+```
+
+## m3
+```{r}
+m3 <- glm(
+  v10_is_not_convinced ~ factor(year) + fishing_20plus + age_group,
+  data = df,
+  family = binomial
+)
+
+m3 |> summary()
+```
+
+## m4
+```{r}
+m4 <- glm(
+  v10_is_not_convinced ~ factor(year) + fishing_10plus + age_group3,
+  data = df,
+  family = binomial
+)
+
+m4 |> summary()
+
+```
+
+
+年齢・調査年を調整しても、長い釣り歴と策定手続きへの不納得との正の関連が示唆された。この方向性は、釣り歴の区切りを10年から20年に変更しても維持された。
+
+

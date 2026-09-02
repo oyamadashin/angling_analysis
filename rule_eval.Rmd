@@ -1,0 +1,418 @@
+---
+title: "rule_eval"
+output: html_document
+date: "2026-09-02"
+# ルール評価に関するEDA
+---
+
+# 準備
+
+
+```{r message=FALSE}
+source("angling_prepartion.R")
+```
+
+
+# 3尾ルール
+
+## もっとも重要でない = 3尾ルール
+
+
+```{r}
+table(df$v10_is_not_convinced, df$v17_2_max_catch_three)
+
+table(df$v10_is_not_convinced, df$v17_2_max_catch_three) |>
+  prop.table(margin = 1) |>
+  (\(x) x * 100)() |>
+  round(1)
+```
+
+策定プロセスに納得していない人の方が、3尾ルールを「もっとも重要でない」と選ぶ割合が高い
+
+
+## もっとも重要でない理由
+
+
+```{r}
+table(df$v17_2_max_catch_three, df$v17_3_reason_reduce_enjoyment)
+table(df$v17_2_max_catch_three, df$v17_3_reason_insufficient_discussion)
+table(df$v17_2_max_catch_three, df$v17_3_reason_ambiguous_rule)
+table(df$v17_2_max_catch_three, df$v17_3_reason_difficult_to_follow)
+table(df$v17_2_max_catch_three, df$v17_3_reason_unlikely_to_be_followed)
+table(df$v17_2_max_catch_three, df$v17_3_reason_has_loopholes)
+
+
+table(df$v17_2_max_catch_three, df$v17_3_reason_reduce_enjoyment) |>
+  prop.table(margin = 1) |>
+  (\(x) x * 100)() |>
+  round(1)
+```
+「釣りの楽しみを奪うから」が多数派
+
+
+## m5 v10のみモデル
+```{r}
+m5 <- glm(
+  v17_2_max_catch_three ~ v10_is_not_convinced,
+  data = df,
+  family = binomial
+)
+
+m5 |> summary()
+```
+
+まずはシンプルなモデル。ルール策定プロセスに納得していない方が3尾ルールを低く評価する。
+
+## m6 +居住地
+```{r}
+m6 <- glm(
+  v17_2_max_catch_three ~ v10_is_not_convinced + v3_residence,
+  data = df,
+  family = binomial
+)
+
+m6 |> summary()
+```
+
+居住地は関係ないみたい
+
+## m7 + 年齢
+```{r}
+m7 <- glm(
+  v17_2_max_catch_three ~ v10_is_not_convinced + v2_gen,
+  data = df,
+  family = binomial
+)
+
+m7 |> summary()
+```
+
+## m8 + 年齢5区分
+```{r}
+
+# 20～40代をまとめて5カテゴリーにした場合
+df <- df |>
+  mutate(
+    age_group = case_when(
+      v2_gen %in% c("20代", "30代", "40代") ~ "20～40代",
+      TRUE ~ as.character(v2_gen)
+    ),
+    age_group = factor(
+      age_group,
+      levels = c("20～40代", "50代", "60代", "70代", "80代以上"),
+      ordered = FALSE
+    )
+  )
+
+m8 <- glm(
+  v17_2_max_catch_three ~ v10_is_not_convinced + age_group,
+  data = df,
+  family = binomial
+)
+
+m8 |> summary()
+```
+
+年齢を5区分にすると、60代が10％水準有意になる（オッズ比は3くらい）
+
+
+```{r}
+# 回帰に使われた回答者でクロス集計
+tab_age <- with(
+  model.frame(m8),
+  table(age_group, v17_2_max_catch_three)
+)
+
+tab_age
+
+prop.table(tab_age, margin = 1) |>
+  (\(x) x * 100)() |>
+  round(1)
+```
+
+```{r}
+drop1(m8, test = "Chisq")
+```
+
+
+60代の方が3尾ルールを低く評価する傾向はあるが、年齢区分全体の尤度比検定は有意でないので、年齢による違いを明確に示す証拠は得られていない。また、AICも年齢を除いたモデルでは127.54になるので、年齢を入れることによる当てはまりの改善は割に合っていない。60代の傾向はあくまで「気になる」程度
+
+
+
+
+## m9 + 年齢3区分
+```{r}
+
+# 3カテゴリーにした場合
+df <- df |>
+  mutate(
+    age_group3 = case_when(
+      v2_gen %in% c("20代", "30代", "40代") ~ "50歳未満",
+      v2_gen %in% c("50代", "60代", "70代") ~ "50～70代",
+      v2_gen == "80代以上" ~ "80歳以上",
+      TRUE ~ NA_character_
+    ),
+    age_group3 = factor(
+      age_group3,
+      levels = c("50歳未満", "50～70代", "80歳以上"),
+      ordered = FALSE
+    )
+  )
+
+m9 <- glm(
+  v17_2_max_catch_three ~ v10_is_not_convinced + age_group3,
+  data = df,
+  family = binomial
+)
+
+m9 |> summary()
+```
+
+年齢3区分だと有意が消える。
+
+
+## m10 + 釣り歴
+```{r}
+m10 <- glm(
+  v17_2_max_catch_three ~ v10_is_not_convinced + v4_fishing_experience_years,
+  data = df,
+  family = binomial
+)
+
+m10 |> summary()
+```
+
+## m11 + 釣り歴10年閾値
+```{r}
+# 10年を閾値にする場合
+df <- df |>
+  mutate(
+    fishing_10plus = case_when(
+      v4_fishing_experience_years %in%
+        c("5年未満", "5年以上10年未満") ~ 0,
+      v4_fishing_experience_years %in%
+        c("10年以上20年未満", "20年以上") ~ 1,
+      TRUE ~ NA_real_
+    )
+  )
+
+m11 <- glm(
+  v17_2_max_catch_three ~ v10_is_not_convinced + fishing_10plus,
+  data = df,
+  family = binomial
+)
+
+m11 |> summary()
+```
+
+## m12 + 釣り歴20年閾値
+```{r}
+# 20年を閾値にする場合
+df <- df |>
+  mutate(
+    fishing_20plus = case_when(
+      v4_fishing_experience_years %in%
+        c("5年未満", "5年以上10年未満", "10年以上20年未満") ~ 0,
+      v4_fishing_experience_years %in%
+        c("20年以上") ~ 1,
+      TRUE ~ NA_real_
+    )
+  )
+
+m12 <- glm(
+  v17_2_max_catch_three ~ v10_is_not_convinced + fishing_20plus,
+  data = df,
+  family = binomial
+)
+
+m12 |> summary()
+```
+
+釣り歴はどのモデルでも有意にならない。
+
+
+## m13 + 年齢5区分 + 釣り歴10年閾値
+```{r}
+
+# 20～40代をまとめて5カテゴリーにした場合
+df <- df |>
+  mutate(
+    age_group = case_when(
+      v2_gen %in% c("20代", "30代", "40代") ~ "20～40代",
+      TRUE ~ as.character(v2_gen)
+    ),
+    age_group = factor(
+      age_group,
+      levels = c("20～40代", "50代", "60代", "70代", "80代以上"),
+      ordered = FALSE
+    )
+  )
+
+# 10年を閾値にする場合
+df <- df |>
+  mutate(
+    fishing_10plus = case_when(
+      v4_fishing_experience_years %in%
+        c("5年未満", "5年以上10年未満") ~ 0,
+      v4_fishing_experience_years %in%
+        c("10年以上20年未満", "20年以上") ~ 1,
+      TRUE ~ NA_real_
+    )
+  )
+
+m13 <- glm(
+  v17_2_max_catch_three ~ v10_is_not_convinced + age_group + fishing_10plus,
+  data = df,
+  family = binomial
+)
+
+m13 |> summary()
+```
+
+## m14 + 年齢5区分 + 釣り歴20年閾値
+```{r}
+
+# 20～40代をまとめて5カテゴリーにした場合
+df <- df |>
+  mutate(
+    age_group = case_when(
+      v2_gen %in% c("20代", "30代", "40代") ~ "20～40代",
+      TRUE ~ as.character(v2_gen)
+    ),
+    age_group = factor(
+      age_group,
+      levels = c("20～40代", "50代", "60代", "70代", "80代以上"),
+      ordered = FALSE
+    )
+  )
+
+# 20年を閾値にする場合
+df <- df |>
+  mutate(
+    fishing_20plus = case_when(
+      v4_fishing_experience_years %in%
+        c("5年未満", "5年以上10年未満", "10年以上20年未満") ~ 0,
+      v4_fishing_experience_years %in%
+        c("20年以上") ~ 1,
+      TRUE ~ NA_real_
+    )
+  )
+
+m14 <- glm(
+  v17_2_max_catch_three ~ v10_is_not_convinced + age_group + fishing_20plus,
+  data = df,
+  family = binomial
+)
+
+m14 |> summary()
+```
+
+年齢と釣り歴を一緒に入れると根練り60代の効果が明確化している
+
+
+```{r}
+drop1(m14, test = "Chisq")
+```
+
+ただ、年齢全体でみると、入れてもモデルの改善という点では割に合わない（年齢を取り除くとAICが128.29になる）
+→　ともかく、v10の頑健性はこれでわかった。
+
+# 3竿ルール
+
+## もっとも重要でない = 3竿ルール
+
+```{r}
+table(df$v10_is_not_convinced, df$v17_2_max_rods_three)
+
+table(df$v10_is_not_convinced, df$v17_2_max_rods_three) |>
+  prop.table(margin = 1) |>
+  (\(x) x * 100)() |>
+  round(1)
+```
+
+3竿ルールだと差が見えなくなる
+
+
+## もっとも重要でない理由
+
+
+```{r}
+table(df$v17_2_max_rods_three, df$v17_3_reason_reduce_enjoyment)
+table(df$v17_2_max_rods_three, df$v17_3_reason_insufficient_discussion)
+table(df$v17_2_max_rods_three, df$v17_3_reason_ambiguous_rule)
+table(df$v17_2_max_rods_three, df$v17_3_reason_difficult_to_follow)
+table(df$v17_2_max_rods_three, df$v17_3_reason_unlikely_to_be_followed)
+table(df$v17_2_max_rods_three, df$v17_3_reason_has_loopholes)
+
+
+table(df$v17_2_max_rods_three, df$v17_3_reason_reduce_enjoyment) |>
+  prop.table(margin = 1) |>
+  (\(x) x * 100)() |>
+  round(1)
+```
+「釣りの楽しみを奪うから」が多数派
+
+
+# わからない
+
+## もっとも重要でない = わからない
+
+```{r}
+table(df$v10_is_not_convinced, df$v17_2_dont_know)
+
+table(df$v10_is_not_convinced, df$v17_2_dont_know) |>
+  prop.table(margin = 1) |>
+  (\(x) x * 100)() |>
+  round(1)
+```
+
+# 場所取りルール
+
+## もっとも重要でない = 場所取りルール
+
+```{r}
+table(df$v10_is_not_convinced, df$v17_2_no_spot_reservation)
+
+table(df$v10_is_not_convinced, df$v17_2_no_spot_reservation) |>
+  prop.table(margin = 1) |>
+  (\(x) x * 100)() |>
+  round(1)
+```
+
+## もっとも重要でない理由
+
+
+```{r}
+table(df$v17_2_no_spot_reservation, df$v17_3_reason_reduce_enjoyment)
+table(df$v17_2_no_spot_reservation, df$v17_3_reason_insufficient_discussion)
+table(df$v17_2_no_spot_reservation, df$v17_3_reason_ambiguous_rule)
+table(df$v17_2_no_spot_reservation, df$v17_3_reason_difficult_to_follow)
+table(df$v17_2_no_spot_reservation, df$v17_3_reason_unlikely_to_be_followed)
+table(df$v17_2_no_spot_reservation, df$v17_3_reason_has_loopholes)
+
+
+table(df$v17_2_no_spot_reservation, df$v17_3_reason_reduce_enjoyment) |>
+  prop.table(margin = 1) |>
+  (\(x) x * 100)() |>
+  round(1)
+```
+「釣りの楽しみを奪うから」が多数派
+→　ルール内容に限らず、ルール全般が「釣りの楽しみを奪うから」低評価を受ける傾向
+
+
+
+
+# どれも同じ
+
+## もっとも重要でない = 「どれも同じ」
+
+
+
+```{r}
+table(df$v10_is_not_convinced, df$v17_2_all_equally_important)
+
+table(df$v10_is_not_convinced, df$v17_2_all_equally_important) |>
+  prop.table(margin = 1) |>
+  (\(x) x * 100)() |>
+  round(1)
+```
