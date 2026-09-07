@@ -4,20 +4,320 @@ format: html
 editor: visual
 ---
 
-# 準備
+
 
 ```{r message=FALSE}
 source("angling_prepartion.R")
 ```
 
-# 大まかなストーリー
 
-- 2024年に釣りルールが導入された。釣り人たちの反応を調査する。
-- 2024年から2025年への傾向変化：
-  - ルールの認知度は向上した。
-  -  しかしルール策定手順に納得していない人の割合はむしろ微増
-- 2024年と2025年の共通の傾向：
-  - 3尾ルールは評価が低い
-- 釣り歴が長い人はルール策定手順に納得しない傾向がある
-- ルール策定手順に納得しない人は3尾ルールを低く評価する傾向がある
-- ルールを低く評価する人は、「楽しみを奪うから」を理由とする傾向がある（3尾ルールかどうかに関係なく）
+
+# 1. はじめに
+
+- 網走海浜では毎年9月から10月中旬ごろまで多数の釣り客が訪れ、サケ・マス釣りを楽しんでいる しかし、一部の釣り人のマナーの悪さが問題視されるようになった
+
+- 2024年9月より、網走市は網走海浜地区の遊漁者を対象に「網走海浜サケ・マス釣りルール」を施行している。
+
+  - 法的強制力のある「禁止」事項の例：場所取り禁止、テント常設の禁止など
+
+  - 法的強制力のない「守る」事項の例：釣り竿の数は3本まで、釣る尾数は3本までなど
+
+- ルール策定手順は以下の通り：
+
+  - 網走市さけ・ます釣り等遊漁環境対策検討委員会（以下「検討委員会」）で議論開始（2024年5月～）
+
+  - 斜里町で先行してルールが施行された（7月）
+
+  - 斜里町のルールを参考にして、検討委員会でルール案を検討 検討委員会が「網走市のサケ・マスの遊漁に関する提言書」を取りまとめる（7月）
+
+  - 「網走海浜サケ・マス釣りルール(案)」に対するパブリックコメントを募集（8月）
+
+  - 「網走海浜サケ・マス釣りルール」施行（9月）
+
+- このルールに対する遊漁者たちの認識や評価を問うことで、今後のルールのあり方に関する知見を得ることが本調査の目的である。
+
+# 2. 調査の概要
+
+- 2024年と2025年に実施。調査員は東京農業大学自然資源経営学科環境情報研究室に所属する2年生～3年生で、毎回教員が同行し調査指示を行った。調査実施場所は、モヨロ貝塚館付近の海岸（以下「モヨロ」）、鱒浦海岸の勇仁川右岸（以下「鱒浦」）、北浜海岸（以下「北浜」）の3か所である。
+
+- 調査日とサンプル数は以下の通り。
+
+```{r}
+df |>
+  count(year, date) |>
+  group_by(year) |>
+  mutate(prop = round(n / sum(n), 2)) |>
+  arrange(year, date) |>
+  group_split()
+```
+
+- 各調査地の回答者数は以下の通り。
+
+```{r}
+df |> count(year, survey_area) |>
+  group_by(year) |> 
+  mutate(prop = round(n / sum(n), 2)) |> 
+  arrange(year, survey_area) |> 
+  group_split()
+```
+
+- 主な質問項目は以下の通り。なお、調査票作成にあたり、市担当者からアドバイスを得た
+
+  - 釣り歴
+
+  - 今シーズン網走海浜でのサケ・マス釣りをした日数
+
+  - 各ルールについて知っているかどうか
+
+  - ルール策定までの手続きを知っているか、また、そうした手続きに納得しているか
+
+  - 各ルールに対する評価
+
+# 3. 調査結果と考察
+
+## 基本属性
+
+- まずは基本属性。9割以上が男性。50代、70代が多め。30代以下は少ない。道外居住者はほとんどいなくて、網走市以外の道内居住者が7割前後。釣り歴は20年以上が半数程度。
+
+```{r}
+df |> filter(!is.na(v1_sex))|> 
+  count(year, v1_sex) |>
+  group_by(year) |> 
+  mutate(prop = round(n / sum(n), 2)) |> 
+  group_split()
+```
+
+```{r}
+df |> filter(!is.na(v2_gen)) |> count(year, v2_gen) |>
+  group_by(year) |> 
+  mutate(prop = round(n / sum(n), 2)) |> 
+  group_split()
+```
+
+```{r}
+df |> filter(!is.na(v3_residence)) |> count(year, v3_residence) |>
+  group_by(year) |> 
+  mutate(prop = round(n / sum(n), 2)) |> 
+  group_split()
+```
+
+```{r}
+df |> filter(!is.na(v4_fishing_experience_years)) |> count(year, v4_fishing_experience_years) |> 
+  group_by(year) |> 
+  mutate(prop = round(n / sum(n), 2)) |> 
+  group_split()
+```
+
+- 今シーズンの網走海浜でのサケ・マス釣り日数は次の通り。50日以上は少数派。半数以上が5日未満である。
+
+```{r}
+df |> filter(!is.na(v5_fishing_days_this_season)) |> count(year, v5_fishing_days_this_season) |> 
+  group_by(year) |> 
+  mutate(prop = round(n / sum(n), 2)) |> 
+  group_split()
+```
+
+## 釣りルールの認知状況
+
+- 次に、釣りルールの認知状況。2024年、2025年で比較できるように、「知っている」と回答した人の割合（認知率）を表示している。まず、「禁止」事項は以下の通り。全体的に、2025年の方が認知率が高くなっている。認知率が低いのは「テント常設禁止」と「砂丘の破壊禁止」であるが、それでも2025年にはそれぞれ76%、77%まで認知率が高まっている。
+
+```{r}
+df2 <- df |> filter(year == "2024")
+
+data.frame(
+  "場所取り" = df2$v7_no_spot_reservation |> mean(na.rm = TRUE) |> round(2),
+  "テント" = df2$v7_no_tent |> mean(na.rm = TRUE) |> round(2),
+  "砂丘の破壊" = df2$v7_no_dune_destruction |> mean(na.rm = TRUE) |> round(2),
+  "指定区域立入" = df2$v7_no_entry_restricted_area |> mean(na.rm = TRUE) |> round(2),
+  "ゴミ投棄" = df2$v7_no_littering |> mean(na.rm = TRUE) |> round(2),
+  "指定区域採捕" = df2$v7_no_fishing_in_restricted_area |> mean(na.rm = TRUE) |> round(2)
+)
+
+df2 <- df |> filter(year == "2025")
+
+data.frame(
+  "場所取り" = df2$v7_no_spot_reservation |> mean(na.rm = TRUE) |> round(2),
+  "テント" = df2$v7_no_tent |> mean(na.rm = TRUE) |> round(2),
+  "砂丘の破壊" = df2$v7_no_dune_destruction |> mean(na.rm = TRUE) |> round(2),
+  "指定区域立入" = df2$v7_no_entry_restricted_area |> mean(na.rm = TRUE) |> round(2),
+  "ゴミ投棄" = df2$v7_no_littering |> mean(na.rm = TRUE) |> round(2),
+  "指定区域採捕" = df2$v7_no_fishing_in_restricted_area |> mean(na.rm = TRUE) |> round(2)
+)
+
+```
+
+- 次は、「守る」事項の認知状況。これも全体的に2025年の方が認知率が高まっている。認知率が低いのは「リリースはやむを得ない場合を除いて行わない」「海でミニボートは使用しない」で、2025年時点でそれぞれ66%、68%である。
+
+```{r}
+df2 <- df |> filter(year == "2024")
+
+
+data.frame(
+  "竿3本" = df2$v8_max_rods_three |> mean(na.rm = TRUE) |> round(2),
+  "魚3尾" = df2$v8_max_catch_three |> mean(na.rm = TRUE) |> round(2),
+  "リリース" = df2$v8_discourage_release |> mean(na.rm = TRUE) |> round(2),
+  "ミニボート" = df2$v8_discourage_miniboat_use |> mean(na.rm = TRUE) |> round(2),
+  "迷惑駐車" = df2$v8_discourage_illegal_parking |> mean(na.rm = TRUE) |> round(2),
+  "キャンプ" = df2$v8_discourage_camping |> mean(na.rm = TRUE) |> round(2),
+  "焚き火" = df2$v8_discourage_bonfire |> mean(na.rm = TRUE) |> round(2),
+  "トイレ" = df2$v8_use_designated_toilets |> mean(na.rm = TRUE) |> round(2)
+) |> 
+  pivot_longer(
+    cols = everything(),
+    names_to = "守る事項",
+    values_to = "認知率"
+  ) |> 
+  arrange(desc(認知率))
+
+
+df2 <- df |> filter(year == "2025")
+
+
+data.frame(
+  "竿3本" = df2$v8_max_rods_three |> mean(na.rm = TRUE) |> round(2),
+  "魚3尾" = df2$v8_max_catch_three |> mean(na.rm = TRUE) |> round(2),
+  "リリース" = df2$v8_discourage_release |> mean(na.rm = TRUE) |> round(2),
+  "ミニボート" = df2$v8_discourage_miniboat_use |> mean(na.rm = TRUE) |> round(2),
+  "迷惑駐車" = df2$v8_discourage_illegal_parking |> mean(na.rm = TRUE) |> round(2),
+  "キャンプ" = df2$v8_discourage_camping |> mean(na.rm = TRUE) |> round(2),
+  "焚き火" = df2$v8_discourage_bonfire |> mean(na.rm = TRUE) |> round(2),
+  "トイレ" = df2$v8_use_designated_toilets |> mean(na.rm = TRUE) |> round(2)
+) |> 
+  pivot_longer(
+    cols = everything(),
+    names_to = "守る事項",
+    values_to = "認知率"
+  ) |> 
+  arrange(desc(認知率))
+```
+
+## ルール策定手順に対する知識・態度
+
+- 次は、ルール策定手順を知っているか・納得しているかという質問に対する回答傾向。知っていて納得している人が最も多いが、2024年時点では65%だったのが2025年時点では55％に減ってしまっている。また、「逆に知っているが納得していない」または「知らないし納得していない人」の割合が、17%から22%に増えている。サンプル数が少ないのでこの程度の差は誤差の範囲であるともいえるが、少なくとも納得している人の割合に増加傾向がみられないのは、ルール認知率の高まりと対照的な結果だといえる。
+
+```{r}
+df |> filter(!is.na(v10_formulation_procedure))|>
+  filter(!is.na(v10_formulation_procedure)) |> 
+  count(year, v10_formulation_procedure) |> 
+  group_by(year) |> 
+  mutate(
+    prop = round(n / sum(n), 2)
+  ) |> 
+  group_split()
+```
+
+## 各ルールに対する評価
+
+- 釣りルールの中でも市担当者からとくに調査要望の強かった「釣り竿の数は3本まで」、「釣る尾数は3本まで」、「場所取り禁止」についての釣り人からの評価を示す。2024年度はそれぞれのルールを10段階で評価させたが、どのルールにも10や1などの極端な評価をつける回答や、他の質問への回答傾向と照らし合わせて明らかに数字の大小関係と評価を取り違えていると思われる回答がみられたため、2025年度調査では「もっとも重要と思うルール」「もっとも重要でないと思うルール」を選択させるシンプルな質問に差し替えた。以下は、2025年度の調査結果である。なお、複数回答のため足しても100％にはならない。
+
+```{r}
+df2 <- df |> filter(year == "2025")
+
+data.frame(
+  "竿3本" = df2$v17_1_max_rods_three |> mean(na.rm = TRUE) |> round(2),
+  "魚3尾" = df2$v17_1_max_catch_three|> mean(na.rm = TRUE) |> round(2),
+  "場所取り" = df2$v17_1_no_spot_reservation |> mean(na.rm = TRUE) |> round(2),
+  "どれも同じ" = df2$v17_1_all_equally_important |> mean(na.rm = TRUE) |> round(2),
+  "わからない" = df2$v17_1_dont_know |> mean(na.rm = TRUE) |> round(2)
+) |> 
+  pivot_longer(
+    cols = everything(),
+    names_to = "もっとも重要と思うルール",
+    values_to = "該当率"
+  ) |> 
+  arrange(desc(該当率))
+```
+
+- まず、「竿3本」、「場所取り禁止」についてはもっとも重要という回答が多く、それぞれ40％以上の回答者に選ばれている。一方、「魚3尾」についてはもっとも重要という回答は17％しかない。
+
+```{r}
+df2 <- df |> filter(year == "2025")
+
+data.frame(
+  "竿3本" = df2$v17_2_max_rods_three |> mean(na.rm = TRUE) |> round(2),
+  "魚3尾" = df2$v17_2_max_catch_three|> mean(na.rm = TRUE) |> round(2),
+  "場所取り" = df2$v17_2_no_spot_reservation |> mean(na.rm = TRUE) |> round(2),
+  "どれも同じ" = df2$v17_2_all_equally_important |> mean(na.rm = TRUE) |> round(2),
+  "わからない" = df2$v17_2_dont_know |> mean(na.rm = TRUE) |> round(2)
+) |> 
+  pivot_longer(
+    cols = everything(),
+    names_to = "もっとも重要でないと思うルール",
+    values_to = "該当率"
+  ) |> 
+  arrange(desc(該当率))
+```
+
+- 「もっとも重要でないルール」でも、やはり「魚3尾」ルールがもっとも重要でないという回答者割合が多く、42％に回答者に選択されている。
+
+```{r}
+df2 <- df |> filter(year == "2025")
+
+data.frame(
+  "楽しみを奪う" = df2$v17_3_reason_reduce_enjoyment |> mean(na.rm = TRUE) |> round(2),
+  "守るのが難しい" = df2$v17_3_reason_difficult_to_follow |> mean(na.rm = TRUE) |> round(2),
+  "議論不十分" = df2$v17_3_reason_insufficient_discussion |> mean(na.rm = TRUE) |> round(2),
+  "誰も守らない" = df2$v17_3_reason_unlikely_to_be_followed |> mean(na.rm = TRUE) |> round(2),
+  "ルールが曖昧" = df2$v17_3_reason_ambiguous_rule |> mean(na.rm = TRUE) |> round(2),
+  "ルールに抜け道" = df2$v17_3_reason_has_loopholes |> mean(na.rm = TRUE) |> round(2)
+) |> 
+  pivot_longer(
+    cols = everything(),
+    names_to = "もっとも重要でない理由",
+    values_to = "該当率"
+  ) |> 
+  arrange(desc(該当率))
+
+
+```
+
+- 「もっとも重要でない」と思う理由については、釣りの楽しみを奪うから、という回答が41%で、他の理由よりも圧倒的に割合が大きい。
+
+```{r}
+df2 <- df |> filter(v10_formulation_procedure == "知っているが、納得していない" | v10_formulation_procedure == "知らないし、納得していない" )
+
+data.frame(
+  "竿3本" = df2$v17_2_max_rods_three |> mean(na.rm = TRUE) |> round(2),
+  "魚3尾" = df2$v17_2_max_catch_three|> mean(na.rm = TRUE) |> round(2),
+  "場所取り" = df2$v17_2_no_spot_reservation |> mean(na.rm = TRUE) |> round(2),
+  "どれも同じ" = df2$v17_2_all_equally_important |> mean(na.rm = TRUE) |> round(2),
+  "わからない" = df2$v17_2_dont_know |> mean(na.rm = TRUE) |> round(2)
+) |> 
+  pivot_longer(
+    cols = everything(),
+    names_to = "もっとも重要でないと思うルール",
+    values_to = "該当率"
+  ) 
+
+df2 <- df |> filter(v10_formulation_procedure == "知っていて、納得している" | v10_formulation_procedure == "知らないが、納得している" )
+
+data.frame(
+  "竿3本" = df2$v17_2_max_rods_three |> mean(na.rm = TRUE) |> round(2),
+  "魚3尾" = df2$v17_2_max_catch_three|> mean(na.rm = TRUE) |> round(2),
+  "場所取り" = df2$v17_2_no_spot_reservation |> mean(na.rm = TRUE) |> round(2),
+  "どれも同じ" = df2$v17_2_all_equally_important |> mean(na.rm = TRUE) |> round(2),
+  "わからない" = df2$v17_2_dont_know |> mean(na.rm = TRUE) |> round(2)
+)
+```
+
+- ルール策定手順に納得していない人だと、「魚3尾」ルールをもっとも重要でないと思う人の割合は67％に達する（納得している人だと35%）。
+
+- なぜこのような結果になるのか。
+
+- 竿の数や場所取りは、釣る尾数を増やすための「手段」に関するルールである。一方、釣る尾数は釣りの「成果」に関するルールである。
+
+- 手段を制限することで釣りというゲームを公正なものにすることには賛成できても、成果にまで制限を加えられることは「釣りの楽しみを奪う」と判断されているのではないか
+
+- これに関連して、釣り人の心理に関する研究（Arlinghaus 2024）では、釣り人は必ずしも尾数そのものを求めているのではなく、釣りという「難しい課題」を攻略することを求めている可能性があるという仮説が示されている。つまり、釣れるかどうかわからない状況で、自分の技量を発揮したいということである。もし釣り人の感じている釣りの楽しみがそのようなものであるなら、自分の技量に関係なしに釣る尾数を制限してしまうルールは釣りの楽しみを奪うものだと評価されやすいだろう。
+
+Arlinghaus, Robert. 2024. “Catch Uncertainty and Recreational Fishing Attraction: Propositions and Future Research Directions.” Fish and Fisheries 25 (5): 761–80.
+
+# 4. おわりに
+
+- 以上をまとめると、次のようなことが明らかになった。
+  - 網走海浜を訪れる釣り人は男性が大半で、50代、70代が多い。道外居住者はほとんどいなくて、多くは網走市外の道内居住者である。釣り歴は20年以上のベテランが多い。
+  - 釣りルールに対する認知は2024年から2025年になって改善している。一方で、ルール策定手順に対して納得する人の割合は向上していない。
+  - ルールに対する評価は「魚3尾ルール」がもっとも低い。ルール策定手順に納得していない人はとくにこの同ルールを低く評価する傾向がある。
+- 人々のルール遵守行動に関する代表的な研究者であるTylerは、人々がなぜ警察に従うのかという問いを立て、人々は必ずしも罰を恐れるから警察に従うのではなく、警察が正当な権威を持つ（正統性を持つ）と人々が認識するからこそ警察に従う面もあると主張している。正統性を高めるのが手続き的公正である。手続き的公正の4つの構成要素として、警察が信頼できる、警察が市民の尊厳を認め敬意を払う、警察が市民を公平かつ中立的に扱う、市民に発言の機会がある、が挙げられている。これは警察をテーマとした研究であるが、釣りルールの遵守行動を理解する上での参考にもなる。なぜ釣りルールを守るべきなのかを釣り人に丁寧に説明するとともに、釣り人がなぜルール（とくに3尾ルール）を低く評価するかについて意見を謙虚に聞くことが重要だろう。
+
+Tyler, Tom R. 1997. “Procedural Fairness and Compliance with the Law.” Swiss Journal of Economics and Statistics (SJES) 133 (II): 219–40.

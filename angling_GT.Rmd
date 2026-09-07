@@ -59,7 +59,8 @@ df |> count(year, date, survey_area) |>
 # 性別(v1_sex)
 
 ```{r v1_sex}
-df |> count(year, v1_sex) |>
+df |> filter(!is.na(v1_sex))|> 
+  count(year, v1_sex) |>
   group_by(year) |> 
   mutate(prop = round(n / sum(n), 2)) |> 
   group_split()
@@ -123,7 +124,7 @@ df |> count(year, v3_residence_hokkaido) |>
 # 釣り歴(v4_fishing_experience_years)
 
 ```{r v4_fishing_experience_years}
-df |> count(year, v4_fishing_experience_years) |> 
+df |> filter(!is.na(v4_fishing_experience_years)) |> count(year, v4_fishing_experience_years) |> 
   group_by(year) |> 
   mutate(prop = round(n / sum(n), 2)) |> 
   group_split()
@@ -147,7 +148,7 @@ df |> count(year, survey_area, v4_fishing_experience_years) |>
 # 今シーズン釣り日数(v5_fishing_days_this_season)
 
 ```{r v5_fishing_days_this_season}
-df |> count(year, v5_fishing_days_this_season) |> 
+df |> filter(!is.na(v5_fishing_days_this_season)) |> count(year, v5_fishing_days_this_season) |> 
   group_by(year) |> 
   mutate(prop = round(n / sum(n), 2)) |> 
   group_split()
@@ -271,7 +272,7 @@ data.frame(
 # v10 策定手順認知と納得
 
 ```{r}
-df |>
+df |> filter(!is.na(v10))|>
   filter(!is.na(v10_formulation_procedure)) |> 
   count(year, v10_formulation_procedure) |> 
   group_by(year) |> 
